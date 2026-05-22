@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="theme-color" content="#f4f3f0"/>
+<title>Starmaster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --teal:#2e7d6e;--teal-mid:#4a9e8e;--teal-light:#7ec5b8;--teal-pale:#d4eeea;
+  --slate:#3d4f5e;--slate-pale:#c8d6de;
+  --rose:#b5606a;--rose-light:#e0aeb3;--rose-pale:#f2dfe1;
+  --amber:#a0692a;--amber-pale:#fdf0dc;
+  --bg:#f4f3f0;--surface:#fff;--surface2:#eef0ef;
+  --text:#1e2a30;--text2:#5a6e78;--text3:#8fa3ad;--border:rgba(61,79,94,0.12);
+  --r:14px;--ff:'Syne',sans-serif;--fb:'DM Sans',sans-serif;
+}
+html,body{height:100%;overflow-x:hidden;}
+body{font-family:var(--fb);color:var(--text);background:var(--bg);-webkit-text-size-adjust:100%;touch-action:manipulation;}
+#app{max-width:520px;margin:0 auto;padding:1.25rem 1rem 6rem;}
+.screen{display:none;}.screen.active{display:block;animation:fu .25s ease both;}
+@keyframes fu{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* Logo */
+.logo-wrap{text-align:center;padding:1.5rem 0 1.5rem;}
+.logo-name{font-family:var(--ff);font-size:32px;font-weight:800;letter-spacing:1px;color:var(--slate);}
+.logo-tag{font-size:14px;color:var(--text3);margin-top:4px;}
+
+/* Cards */
+.card{background:var(--surface);border:.5px solid var(--border);border-radius:var(--r);padding:1.25rem 1.25rem;margin-bottom:14px;}
+.card-label{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);font-weight:500;margin-bottom:12px;}
+
+/* Inputs — 16px prevents iOS zoom */
+input,textarea,select{
+  width:100%;font-family:var(--fb);font-size:16px;
+  padding:12px 14px;border:.5px solid var(--border);
+  border-radius:10px;background:var(--bg);color:var(--text);
+  outline:none;-webkit-appearance:none;appearance:none;
+}
+input:focus,textarea:focus{border-color:var(--teal-mid);}
+textarea{resize:none;height:80px;line-height:1.5;}
+label{font-size:14px;color:var(--text2);display:block;margin-bottom:6px;}
+.gap{height:12px;}
+.row2{display:flex;gap:8px;}.row2>*{flex:1;}
+
+/* Buttons — min 48px touch target */
+button,
+.svc-btn,
+.pill,
+.choice-btn{
+  -webkit-appearance:none;appearance:none;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  user-select:none;
+}
+button{font-family:var(--fb);font-size:16px;font-weight:500;border-radius:10px;padding:12px 20px;transition:opacity .1s;border:none;background:transparent;color:var(--text);}
+button:active{opacity:.7;}
+.btn-main{
+  background:var(--teal);color:#fff;border:none;
+  width:100%;padding:15px;font-size:17px;
+  border-radius:12px;font-family:var(--ff);font-weight:700;
+  display:block;margin-top:6px;min-height:52px;
+}
+.btn-main:active{opacity:.8;}
+.btn-main:disabled{opacity:.4;pointer-events:none;}
+.btn-sec{background:var(--surface);color:var(--slate);border:.5px solid var(--border);min-height:48px;padding:12px 18px;}
+.btn-sec:active{background:var(--surface2);}
+.btn-ghost{background:none;border:none;color:var(--text3);font-size:14px;padding:10px 6px;min-height:44px;}
+.btn-rose{background:transparent;color:var(--rose);border:.5px solid var(--rose-light);font-size:15px;padding:12px 18px;min-height:48px;border-radius:10px;}
+.btn-rose:active{background:var(--rose-pale);}
+
+/* Player chips */
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;min-height:36px;margin-bottom:12px;}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:14px;padding:7px 13px;border-radius:20px;
+  border:.5px solid var(--border);background:var(--bg);
+  min-height:36px;
+}
+.chip.lead{background:var(--teal-pale);border-color:var(--teal-light);color:var(--teal);}
+.chip-x{
+  background:none;border:none;color:inherit;opacity:.5;
+  font-size:18px;padding:0 0 0 2px;line-height:1;
+  min-width:24px;min-height:24px;display:flex;align-items:center;justify-content:center;
+}
+.chip-x:active{opacity:1;}
+.err{font-size:14px;color:var(--rose);margin-top:8px;display:none;}.err.on{display:block;}
+
+/* Pass screen */
+.pass-wrap{text-align:center;padding:3rem 1rem 2.5rem;}
+.pass-ring{
+  width:88px;height:88px;border-radius:50%;
+  background:var(--teal-pale);border:.5px solid var(--teal-light);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;font-size:34px;
+}
+.pass-name{font-family:var(--ff);font-size:28px;font-weight:700;color:var(--slate);margin-bottom:8px;}
+.pass-note{font-size:15px;color:var(--text2);max-width:280px;margin:0 auto 2rem;line-height:1.55;}
+
+/* SM tag */
+.sm-tag{
+  display:inline-block;font-size:12px;letter-spacing:1.5px;
+  text-transform:uppercase;background:var(--rose-pale);color:var(--rose);
+  border-radius:6px;padding:4px 10px;margin-bottom:10px;font-weight:500;
+}
+
+/* Phrase card */
+.phrase-card{
+  background:var(--surface);border:.5px solid var(--border);
+  border-radius:var(--r);padding:1.5rem 1.25rem;
+  text-align:center;margin-bottom:14px;position:relative;overflow:hidden;
+}
+.phrase-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal),var(--rose));}
+.phrase-kicker{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;}
+.phrase-text{font-family:var(--ff);font-size:20px;font-weight:600;line-height:1.45;color:var(--slate);}
+
+/* Answer choices */
+.choices{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.choice-btn{
+  background:var(--surface);border:2px solid var(--border);
+  border-radius:14px;padding:16px 16px;
+  text-align:left;color:var(--text);
+  display:flex;align-items:center;gap:14px;
+  font-family:var(--fb);width:100%;min-height:60px;
+  transition:border-color .15s, background .15s;
+}
+.choice-btn:active{background:var(--teal-pale);border-color:var(--teal-light);}
+.choice-btn.selected{border-color:var(--teal);background:var(--teal-pale);color:var(--teal);}
+.choice-btn.selected .choice-letter{background:var(--teal);color:#fff;border-color:var(--teal);}
+.choice-letter{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--bg);border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;flex-shrink:0;
+}
+.choice-text{flex:1;font-size:15px;line-height:1.3;font-weight:500;}
+
+/* Reveal box */
+.reveal-box{background:var(--teal-pale);border:.5px solid var(--teal-light);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
+.reveal-row{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 16px;border-bottom:.5px solid rgba(46,125,110,.15);gap:12px;}
+.reveal-row:last-child{border-bottom:none;}
+.reveal-key{font-size:12px;color:var(--teal);text-transform:uppercase;letter-spacing:1px;flex-shrink:0;padding-top:2px;}
+.reveal-val{font-size:15px;font-weight:500;color:var(--teal);text-align:right;}
+
+/* Result / score rows */
+.result-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:.5px solid var(--border);gap:8px;}
+.result-row:last-child{border-bottom:none;}
+.result-name{font-size:15px;flex:1;}
+.result-answer{font-size:13px;padding:4px 10px;border-radius:20px;text-align:center;}
+.result-answer.correct{background:var(--teal-pale);color:var(--teal);}
+.result-answer.wrong{background:var(--rose-pale);color:var(--rose);}
+.result-pts{font-family:var(--ff);font-size:18px;font-weight:700;color:var(--slate);flex-shrink:0;}
+.score-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:.5px solid var(--border);}
+.score-row:last-child{border-bottom:none;}
+.score-pts{font-family:var(--ff);font-size:22px;font-weight:700;color:var(--slate);}
+.score-first .score-pts{color:var(--teal);}
+
+/* Round bar */
+.round-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;}
+.round-pill{font-size:13px;background:var(--slate-pale);color:var(--slate);padding:5px 13px;border-radius:20px;}
+.muted{color:var(--text2);font-size:14px;}
+
+/* Service grid */
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+.svc-btn{
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  padding:16px 8px;background:var(--bg);border:.5px solid var(--border);
+  border-radius:12px;font-size:13px;color:var(--text2);
+  font-family:var(--fb);font-weight:500;text-align:center;
+  min-height:80px;transition:border-color .15s;
+}
+.svc-btn:active{border-color:var(--teal-light);background:var(--teal-pale);color:var(--teal);}
+.svc-btn.linked{background:var(--teal-pale);border-color:var(--teal-mid);color:var(--teal);}
+.svc-icon{font-size:26px;}
+.linked-row{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.linked-badge{display:inline-flex;align-items:center;gap:5px;font-size:13px;background:var(--teal-pale);color:var(--teal);border:.5px solid var(--teal-light);border-radius:20px;padding:4px 12px;}
+
+/* Autofill box */
+.af-box{background:var(--teal-pale);border:.5px solid var(--teal-light);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
+.af-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:.5px solid rgba(46,125,110,.15);}
+.af-title{font-size:14px;font-weight:500;color:var(--teal);}
+.af-row{display:flex;justify-content:space-between;align-items:flex-start;padding:11px 16px;border-bottom:.5px solid rgba(46,125,110,.1);gap:12px;}
+.af-row:last-child{border-bottom:none;}
+.af-key{font-size:12px;color:var(--teal);text-transform:uppercase;letter-spacing:.8px;flex-shrink:0;padding-top:2px;}
+.af-val{font-size:15px;font-weight:500;color:var(--slate);text-align:right;}
+.af-phrase{font-style:italic;font-weight:400;font-size:14px;}
+
+/* Spinner */
+.spinner-wrap{text-align:center;padding:1.5rem;}
+.spinner{width:32px;height:32px;border:3px solid var(--teal-pale);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin-txt{font-size:14px;color:var(--text3);}
+
+/* Pills */
+.pill-group{display:flex;flex-wrap:wrap;gap:8px;}
+.pill{
+  padding:8px 16px;border-radius:20px;font-size:14px;font-weight:500;
+  border:.5px solid var(--border);background:var(--bg);color:var(--text2);
+  min-height:38px;display:inline-flex;align-items:center;
+}
+.pill:active{border-color:var(--teal-light);color:var(--teal);}
+.pill.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+.pill.diff-easy.active{background:#4a9e8e;border-color:#4a9e8e;}
+.pill.diff-medium.active{background:var(--amber);border-color:var(--amber);}
+.pill.diff-hard.active{background:var(--rose);border-color:var(--rose);}
+
+/* Timer */
+.timer-wrap{position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+.timer-ring-svg{transform:rotate(-90deg);}
+.timer-ring-bg{fill:none;stroke:var(--slate-pale);stroke-width:5;}
+.timer-ring-fg{fill:none;stroke:var(--teal);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .9s linear,stroke .5s;}
+.timer-num{position:absolute;font-family:var(--ff);font-size:26px;font-weight:700;color:var(--slate);}
+.diff-badge{display:inline-block;font-size:12px;letter-spacing:1px;text-transform:uppercase;border-radius:6px;padding:3px 9px;font-weight:500;}
+.diff-badge.easy{background:rgba(74,158,142,.15);color:var(--teal);}
+.diff-badge.medium{background:var(--amber-pale);color:var(--amber);}
+.diff-badge.hard{background:var(--rose-pale);color:var(--rose);}
+@keyframes pulse-ring{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+.timer-pulse{animation:pulse-ring .5s ease infinite;}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(30,42,48,.55);display:flex;align-items:center;justify-content:center;z-index:999;padding:1rem;}
+.modal{background:var(--surface);border-radius:20px;padding:2rem 1.5rem;max-width:360px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.2);}
+.modal-ico{font-size:48px;margin-bottom:14px;}
+.modal-title{font-family:var(--ff);font-size:22px;font-weight:700;color:var(--slate);margin-bottom:8px;}
+.modal-sub{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:1.5rem;}
+.modal-note{font-size:12px;color:var(--text3);margin-top:12px;line-height:1.55;}
+
+/* Time up overlay */
+.timeup-overlay{position:fixed;inset:0;background:rgba(181,96,106,.2);display:flex;align-items:center;justify-content:center;z-index:900;padding:1rem;}
+.timeup-box{background:var(--surface);border-radius:20px;padding:2rem 1.5rem;max-width:320px;width:100%;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.18);}
+
+/* Picked badge */
+.picked-badge{background:var(--teal-pale);border:.5px solid var(--teal-light);border-radius:14px;padding:1.5rem;text-align:center;margin-bottom:14px;}
+.picked-emoji{font-size:36px;margin-bottom:10px;}
+.picked-txt{font-size:16px;color:var(--teal);font-weight:500;}
+.picked-sub{font-size:13px;color:var(--text3);margin-top:6px;}
+
+/* Trophy */
+.trophy-wrap{text-align:center;padding:2rem 1rem 1rem;}
+.trophy-ring{width:100px;height:100px;border-radius:50%;background:var(--teal-pale);border:.5px solid var(--teal-light);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.winner-name{font-family:var(--ff);font-size:32px;font-weight:800;color:var(--teal);}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HOME -->
+<div id="s-home" class="screen active">
+  <div class="logo-wrap">
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" style="display:block;margin:0 auto 14px">
+      <circle cx="40" cy="40" r="38" fill="#d4eeea"/>
+      <polygon points="40,12 47,30 67,30 52,42 58,61 40,50 22,61 28,42 13,30 33,30" fill="#2e7d6e" opacity=".12" transform="translate(2,3)"/>
+      <polygon points="40,12 47,30 67,30 52,42 58,61 40,50 22,61 28,42 13,30 33,30" fill="url(#sg1)"/>
+      <polygon points="40,12 47,30 67,30 52,42 58,61 40,50 22,61 28,42 13,30 33,30" fill="none" stroke="#2e7d6e" stroke-width="1.5" stroke-linejoin="round"/>
+      <circle cx="31" cy="24" r="3" fill="#fff" opacity=".55"/>
+      <circle cx="31" cy="24" r="1.2" fill="#fff" opacity=".9"/>
+      <line x1="58" y1="14" x2="58" y2="20" stroke="#7ec5b8" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="55" y1="17" x2="61" y2="17" stroke="#7ec5b8" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="16" y1="52" x2="16" y2="57" stroke="#e0aeb3" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="13.5" y1="54.5" x2="18.5" y2="54.5" stroke="#e0aeb3" stroke-width="1.5" stroke-linecap="round"/>
+      <defs><linearGradient id="sg1" x1="40" y1="12" x2="40" y2="61" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#7ec5b8"/><stop offset="100%" stop-color="#2e7d6e"/></linearGradient></defs>
+    </svg>
+    <div class="logo-name">Starmaster</div>
+    <div class="logo-tag">The music guessing game</div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Link music service</div>
+    <div class="svc-grid">
+      <div class="svc-btn" id="svc-apple"><span class="svc-icon">🎵</span>Apple Music</div>
+      <div class="svc-btn" id="svc-youtube"><span class="svc-icon">▶️</span>YouTube Music</div>
+      <div class="svc-btn" id="svc-google"><span class="svc-icon">🎶</span>Google Play</div>
+    </div>
+    <div id="linked-row" style="display:none" class="linked-row">
+      <div class="linked-badge">✓ <span id="linked-label"></span> connected</div>
+      <button class="btn-ghost" id="unlink-btn">Disconnect</button>
+    </div>
+    <p class="muted" id="no-svc-note" style="font-size:13px;margin-top:8px">Link a service to auto-fill songs each round.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Genre filter</div>
+    <div class="pill-group" id="genre-pills">
+      <div class="pill active" data-genre="All">All</div>
+      <div class="pill" data-genre="Pop">Pop</div>
+      <div class="pill" data-genre="R&B">R&amp;B</div>
+      <div class="pill" data-genre="Hip-Hop">Hip-Hop</div>
+      <div class="pill" data-genre="Rock">Rock</div>
+      <div class="pill" data-genre="Latin">Latin</div>
+      <div class="pill" data-genre="Country">Country</div>
+      <div class="pill" data-genre="Electronic">Electronic</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Difficulty</div>
+    <div class="pill-group" id="diff-pills">
+      <div class="pill diff-easy" data-diff="easy">🟢 Easy</div>
+      <div class="pill diff-medium active" data-diff="medium">🟡 Medium</div>
+      <div class="pill diff-hard" data-diff="hard">🔴 Hard</div>
+    </div>
+    <p class="muted" id="diff-note" style="font-size:13px;margin-top:10px"></p>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Players</div>
+    <div class="chip-row" id="chip-row"></div>
+    <div class="row2">
+      <input type="text" id="pname" placeholder="Enter a name..." maxlength="20" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false"/>
+      <button class="btn-sec" id="add-btn" style="flex:0 0 auto">Add</button>
+    </div>
+    <p class="err" id="perr">Add at least 2 players to start.</p>
+  </div>
+
+  <button class="btn-main" id="start-btn">Start game</button>
+</div>
+
+<!-- PASS -->
+<div id="s-pass" class="screen">
+  <div class="pass-wrap">
+    <div class="pass-ring">📱</div>
+    <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Pass to</div>
+    <div class="pass-name" id="pass-name"></div>
+    <div class="pass-note" id="pass-note"></div>
+    <button class="btn-main" id="pass-btn" style="max-width:260px;margin:0 auto;display:block;">I have the device</button>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div id="s-setup" class="screen">
+  <div style="margin-bottom:1.25rem">
+    <div class="sm-tag">★ Starmaster</div>
+    <div style="font-family:var(--ff);font-size:24px;font-weight:700;color:var(--slate)" id="setup-name"></div>
+    <p class="muted" style="margin-top:6px;font-size:14px">Only you see this screen.</p>
+  </div>
+  <div id="box-loading" class="card" style="display:none">
+    <div class="spinner-wrap"><div class="spinner"></div><div class="spin-txt" id="spin-msg">Picking a song...</div></div>
+  </div>
+  <div id="box-autofill" class="af-box" style="display:none">
+    <div class="af-header">
+      <span class="af-title">✓ Song auto-filled</span>
+      <button class="btn-ghost" id="reroll-btn" style="font-size:13px;padding:6px 10px;color:var(--teal)">↺ Try another</button>
+    </div>
+    <div class="af-row"><span class="af-key">Song</span><span class="af-val" id="af-song"></span></div>
+    <div class="af-row"><span class="af-key">Artist</span><span class="af-val" id="af-artist"></span></div>
+    <div class="af-row"><span class="af-key">Phrase</span><span class="af-val af-phrase" id="af-phrase"></span></div>
+    <div class="af-row"><span class="af-key">Choices</span><span class="af-val" id="af-choices" style="font-size:13px;line-height:1.7"></span></div>
+  </div>
+  <button class="btn-main" id="setup-btn" disabled>Done — start guessing</button>
+</div>
+
+<!-- PLAYER GUESS SCREEN -->
+<div id="s-guess" class="screen">
+  <div class="round-bar">
+    <div class="round-pill">Round <span id="g-rnd-n">1</span></div>
+    <span id="g-diff-badge" class="diff-badge medium"></span>
+  </div>
+  <div style="text-align:center;margin-bottom:14px">
+    <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Your turn</div>
+    <div style="font-family:var(--ff);font-size:24px;font-weight:700;color:var(--slate)" id="g-player-name"></div>
+  </div>
+  <div class="timer-wrap" id="g-timer-wrap">
+    <svg class="timer-ring-svg" width="80" height="80" viewBox="0 0 80 80">
+      <circle class="timer-ring-bg" cx="40" cy="40" r="34"/>
+      <circle class="timer-ring-fg" id="g-timer-ring" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="0"/>
+    </svg>
+    <span class="timer-num" id="g-timer-num">40</span>
+  </div>
+  <div class="phrase-card">
+    <div class="phrase-kicker">Guess the song</div>
+    <div class="phrase-text" id="g-phrase"></div>
+  </div>
+  <div class="choices" id="g-choices"></div>
+  <div id="g-picked" style="display:none">
+    <div class="picked-badge">
+      <div class="picked-emoji">✅</div>
+      <div class="picked-txt">Answer locked in!</div>
+      <div class="picked-sub">Pass the phone to the next player.</div>
+    </div>
+    <button class="btn-main" id="g-next-btn">Pass to next player →</button>
+  </div>
+</div>
+
+<!-- STARMASTER REVEAL -->
+<div id="s-reveal" class="screen">
+  <div style="margin-bottom:1.25rem">
+    <div class="sm-tag">★ Starmaster — Reveal</div>
+    <div style="font-family:var(--ff);font-size:22px;font-weight:700;color:var(--slate)">Everyone has guessed!</div>
+    <p class="muted" style="margin-top:6px">Show the answer to the group.</p>
+  </div>
+  <div class="reveal-box" style="margin-bottom:14px">
+    <div class="reveal-row"><span class="reveal-key">Song</span><span class="reveal-val" id="rev-song"></span></div>
+    <div class="reveal-row"><span class="reveal-key">Artist</span><span class="reveal-val" id="rev-artist"></span></div>
+    <div class="reveal-row"><span class="reveal-key">Phrase</span><span class="reveal-val" id="rev-phrase" style="font-style:italic;font-size:13px;max-width:65%;text-align:right"></span></div>
+  </div>
+  <div class="card">
+    <div class="card-label">What everyone picked</div>
+    <div id="rev-answers"></div>
+  </div>
+  <button class="btn-main" id="score-btn">See scores →</button>
+</div>
+
+<!-- SCORE -->
+<div id="s-score" class="screen">
+  <div style="margin-bottom:1.25rem">
+    <div style="font-family:var(--ff);font-size:22px;font-weight:700;color:var(--slate)">Scores</div>
+    <p class="muted">Points awarded automatically.</p>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-label">This round</div>
+    <div id="round-results"></div>
+  </div>
+  <div class="card">
+    <div class="card-label">Scoreboard</div>
+    <div id="scoreboard"></div>
+  </div>
+  <div class="row2" style="margin-top:6px;gap:10px">
+    <button class="btn-main" style="margin-top:0" id="next-round-btn">Next round</button>
+    <button class="btn-rose" id="end-game-btn">End game</button>
+  </div>
+</div>
+
+<!-- END -->
+<div id="s-end" class="screen">
+  <div class="trophy-wrap">
+    <div class="trophy-ring">
+      <svg width="56" height="56" viewBox="0 0 80 80" fill="none">
+        <polygon points="40,12 47,30 67,30 52,42 58,61 40,50 22,61 28,42 13,30 33,30" fill="#2e7d6e" opacity=".12" transform="translate(2,3)"/>
+        <polygon points="40,12 47,30 67,30 52,42 58,61 40,50 22,61 28,42 13,30 33,30" fill="url(#sg2)"/>
+        <polygon points="40,12 47,30 67,30 52,42 58,61 40,50 22,61 28,42 13,30 33,30" fill="none" stroke="#2e7d6e" stroke-width="1.5" stroke-linejoin="round"/>
+        <circle cx="31" cy="24" r="3" fill="#fff" opacity=".55"/>
+        <circle cx="31" cy="24" r="1.2" fill="#fff" opacity=".9"/>
+        <defs><linearGradient id="sg2" x1="40" y1="12" x2="40" y2="61" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#7ec5b8"/><stop offset="100%" stop-color="#2e7d6e"/></linearGradient></defs>
+      </svg>
+    </div>
+    <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Winner</div>
+    <div class="winner-name" id="end-winner"></div>
+    <div style="font-size:15px;color:var(--text2);margin-top:6px"><span id="end-pts" style="font-weight:600"></span> points</div>
+  </div>
+  <div class="card"><div class="card-label">Final scores</div><div id="end-board"></div></div>
+  <button class="btn-main" style="margin-top:0" id="play-again-btn">↺ Play again</button>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal-bg" style="display:none">
+  <div class="modal">
+    <div class="modal-ico" id="m-ico"></div>
+    <div class="modal-title" id="m-title"></div>
+    <div class="modal-sub" id="m-sub"></div>
+    <button class="btn-main" id="m-connect-btn" style="margin-top:0">Connect</button>
+    <button class="btn-ghost" id="m-cancel-btn" style="width:100%;margin-top:8px">Cancel</button>
+    <div class="modal-note">In production this opens the service's OAuth login. Here it simulates the connection with a curated song library.</div>
+  </div>
+</div>
+
+<!-- TIME UP -->
+<div id="timeup" class="timeup-overlay" style="display:none">
+  <div class="timeup-box">
+    <div style="font-size:48px;margin-bottom:12px">⏰</div>
+    <div style="font-family:var(--ff);font-size:24px;font-weight:700;color:var(--rose);margin-bottom:8px">Time's up!</div>
+    <div style="font-size:14px;color:var(--text2);margin-bottom:1.5rem" id="timeup-msg">Pick your answer!</div>
+    <button class="btn-main" id="timeup-btn" style="margin-top:0">OK</button>
+  </div>
+</div>
+
+<script>
+// ── Song library ──
+const SONGLIB={
+  'Pop':[
+    {song:'Blinding Lights',artist:'The Weeknd',phrase:'I said, ooh, I\'m drowning in the night',fakes:['Shape of You','Levitating']},
+    {song:'As It Was',artist:'Harry Styles',phrase:'In this world, it\'s just us, you know it\'s not the same as it was',fakes:['Watermelon Sugar','Golden']},
+    {song:'Levitating',artist:'Dua Lipa',phrase:'I got you, moonlight, you\'re my starlight',fakes:['Don\'t Start Now','Physical']},
+    {song:'Shake It Off',artist:'Taylor Swift',phrase:'The players gonna play, play, play, play, play',fakes:['Bad Blood','22']},
+    {song:'Uptown Funk',artist:'Mark Ronson',phrase:'Don\'t believe me, just watch',fakes:['Happy','Can\'t Stop the Feeling']},
+    {song:'Roar',artist:'Katy Perry',phrase:'I used to bite my tongue and hold my breath',fakes:['Firework','Teenage Dream']},
+    {song:'Happy',artist:'Pharrell Williams',phrase:'Clap along if you feel like happiness is the truth',fakes:['Get Lucky','Blurred Lines']},
+    {song:'Shape of You',artist:'Ed Sheeran',phrase:'The club isn\'t the best place to find a lover',fakes:['Thinking Out Loud','Perfect']},
+  ],
+  'R&B':[
+    {song:'drivers license',artist:'Olivia Rodrigo',phrase:'I got my driver\'s license last week, just like we always talked about',fakes:['Good 4 U','Deja Vu']},
+    {song:'Good 4 U',artist:'Olivia Rodrigo',phrase:'Good for you, I guess you moved on really easily',fakes:['drivers license','brutal']},
+    {song:'Stay',artist:'The Kid LAROI',phrase:'I do the same thing I told you that I never would',fakes:['Without You','Thousand Miles']},
+    {song:'Peaches',artist:'Justin Bieber',phrase:'I got my peaches out in Georgia',fakes:['Sorry','Love Yourself']},
+    {song:'Hello',artist:'Adele',phrase:'Hello, it\'s me, I was wondering if after all these years',fakes:['Someone Like You','Rolling in the Deep']},
+    {song:'Someone Like You',artist:'Adele',phrase:'Never mind, I\'ll find someone like you',fakes:['Hello','Set Fire to the Rain']},
+  ],
+  'Hip-Hop':[
+    {song:'God\'s Plan',artist:'Drake',phrase:'She said, do you love me? I tell her only partly',fakes:['Hotline Bling','In My Feelings']},
+    {song:'HUMBLE.',artist:'Kendrick Lamar',phrase:'Sit down, be humble',fakes:['DNA.','LOYALTY.']},
+    {song:'Sicko Mode',artist:'Travis Scott',phrase:'Sun is down, freezing cold, that\'s how I already know',fakes:['Antidote','Goosebumps']},
+    {song:'Sorry',artist:'Justin Bieber',phrase:'Is it too late now to say sorry?',fakes:['Love Yourself','What Do You Mean?']},
+    {song:'One Dance',artist:'Drake',phrase:'Baby, I like your style',fakes:['Controlla','Too Good']},
+  ],
+  'Rock':[
+    {song:'Counting Stars',artist:'OneRepublic',phrase:'Lately I\'ve been, I\'ve been losing sleep',fakes:['Apologize','Stop and Stare']},
+    {song:'Radioactive',artist:'Imagine Dragons',phrase:'I\'m waking up, I feel it in my bones',fakes:['Demons','Believer']},
+    {song:'Believer',artist:'Imagine Dragons',phrase:'First things first, I\'ma say all the words inside my head',fakes:['Thunder','Whatever It Takes']},
+    {song:'Demons',artist:'Imagine Dragons',phrase:'When you feel my heat, look into my eyes',fakes:['It\'s Time','Shots']},
+    {song:'Riptide',artist:'Vance Joy',phrase:'I was scared of dentists and the dark',fakes:['Georgia','Fire and the Flood']},
+  ],
+  'Latin':[
+    {song:'Despacito',artist:'Luis Fonsi',phrase:'Despacito, quiero respirar tu cuello despacito',fakes:['Bailando','El Perdón']},
+    {song:'Hips Don\'t Lie',artist:'Shakira',phrase:'I never really knew that she could dance like this',fakes:['Waka Waka','La Tortura']},
+    {song:'Waka Waka',artist:'Shakira',phrase:'You\'re a good soldier, choosing your battles',fakes:['Hips Don\'t Lie','Whenever, Wherever']},
+    {song:'Mi Gente',artist:'J Balvin',phrase:'Toda mi gente, se mueve',fakes:['Ginza','Safari']},
+  ],
+  'Country':[
+    {song:'Jolene',artist:'Dolly Parton',phrase:'Jolene, Jolene, Jolene, Jolene, I\'m begging of you please don\'t take my man',fakes:['I Will Always Love You','9 to 5']},
+    {song:'Before He Cheats',artist:'Carrie Underwood',phrase:'Right now, he\'s probably slow dancing with a bleach-blonde tramp',fakes:['Jesus, Take the Wheel','Blown Away']},
+    {song:'Body Like a Back Road',artist:'Sam Hunt',phrase:'Body like a back road, driving with my eyes closed',fakes:['House Party','Break Up in a Small Town']},
+    {song:'Meant to Be',artist:'Bebe Rexha',phrase:'Baby, lay on back and relax, kick your pretty feet up on my dash',fakes:['Florida Girl','Die a Happy Man']},
+  ],
+  'Electronic':[
+    {song:'Wake Me Up',artist:'Avicii',phrase:'Feeling my way through the darkness, guided by a beating heart',fakes:['Levels','Le7els']},
+    {song:'Titanium',artist:'David Guetta',phrase:'I am titanium, you shoot me down but I won\'t fall',fakes:['Without You','Dangerous']},
+    {song:'Animals',artist:'Martin Garrix',phrase:'Baby, don\'t you fear, don\'t you fear this',fakes:['Tremor','Proxy']},
+    {song:'Clarity',artist:'Zedd',phrase:'If our love is tragedy, why are you my remedy?',fakes:['Stay the Night','Beautiful Now']},
+  ],
+};
+
+const SVC={
+  apple:{name:'Apple Music',icon:'🎵'},
+  youtube:{name:'YouTube Music',icon:'▶️'},
+  google:{name:'Google Play',icon:'🎶'},
+};
+
+const DIFF={
+  easy:{label:'Easy',secs:40,pts:1,desc:'40 seconds · 1 pt per correct guess'},
+  medium:{label:'Medium',secs:30,pts:2,desc:'30 seconds · 2 pts per correct guess'},
+  hard:{label:'Hard',secs:15,pts:3,desc:'15 seconds · 3 pts per correct guess'},
+};
+
+// ── State ──
+let players=[],scores={},smIdx=0,round=1,phrase=null,nextScr=null;
+let linkedSvc=null,pendingSvc=null,usedSongs=new Set();
+let selectedGenre='All',selectedDiff='medium';
+let timerInterval=null,timerLeft=0;
+let guessOrder=[],currentGuesserIdx=0,playerAnswers={},choices=[];
+
+// ── Screen ──
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function safe(s){return s.replace(/[^a-z0-9]/gi,'_');}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+// ── Wire up all buttons using addEventListener (mobile-safe) ──
+function $(id){return document.getElementById(id);}
+
+// Genre pills
+document.querySelectorAll('#genre-pills .pill').forEach(pill=>{
+  pill.addEventListener('click',function(){
+    document.querySelectorAll('#genre-pills .pill').forEach(p=>p.classList.remove('active'));
+    this.classList.add('active');
+    selectedGenre=this.dataset.genre;
+  });
+});
+
+// Diff pills
+document.querySelectorAll('#diff-pills .pill').forEach(pill=>{
+  pill.addEventListener('click',function(){
+    document.querySelectorAll('#diff-pills .pill').forEach(p=>p.classList.remove('active'));
+    this.classList.add('active');
+    selectedDiff=this.dataset.diff;
+    $('diff-note').textContent=DIFF[selectedDiff].desc;
+  });
+});
+$('diff-note').textContent=DIFF['medium'].desc;
+
+// Service buttons
+['apple','youtube','google'].forEach(key=>{
+  $('svc-'+key).addEventListener('click',()=>openModal(key));
+});
+$('unlink-btn').addEventListener('click',unlinkService);
+$('m-connect-btn').addEventListener('click',confirmConnect);
+$('m-cancel-btn').addEventListener('click',closeModal);
+$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal();});
+
+// Players
+$('add-btn').addEventListener('click',addPlayer);
+$('pname').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addPlayer();}});
+
+// Game flow
+$('start-btn').addEventListener('click',goStart);
+$('pass-btn').addEventListener('click',doPass);
+$('setup-btn').addEventListener('click',submitSetup);
+$('reroll-btn').addEventListener('click',reroll);
+$('g-next-btn').addEventListener('click',nextGuesser);
+$('score-btn').addEventListener('click',goScore);
+$('next-round-btn').addEventListener('click',nextRound);
+$('end-game-btn').addEventListener('click',endGame);
+$('play-again-btn').addEventListener('click',resetGame);
+$('timeup-btn').addEventListener('click',dismissTimeup);
+
+// ── Modal ──
+function openModal(key){
+  pendingSvc=key;
+  $('m-ico').textContent=SVC[key].icon;
+  $('m-title').textContent='Connect '+SVC[key].name;
+  $('m-sub').textContent='Link your '+SVC[key].name+' account so songs are auto-filled each round.';
+  $('modal').style.display='flex';
+}
+function closeModal(){$('modal').style.display='none';pendingSvc=null;}
+function confirmConnect(){
+  linkedSvc=pendingSvc;
+  document.querySelectorAll('.svc-btn').forEach(b=>b.classList.remove('linked'));
+  $('svc-'+linkedSvc).classList.add('linked');
+  $('linked-label').textContent=SVC[linkedSvc].name;
+  $('linked-row').style.display='flex';
+  $('no-svc-note').style.display='none';
+  closeModal();
+}
+function unlinkService(){
+  $('svc-'+linkedSvc).classList.remove('linked');
+  linkedSvc=null;
+  $('linked-row').style.display='none';
+  $('no-svc-note').style.display='block';
+}
+
+// ── Players ──
+function addPlayer(){
+  const inp=$('pname'),n=inp.value.trim();
+  if(!n||players.includes(n)){inp.value='';return;}
+  players.push(n);scores[n]=0;renderChips();inp.value='';inp.focus();
+  $('perr').classList.remove('on');
+}
+function removePlayer(i){
+  const n=players[i];players.splice(i,1);delete scores[n];renderChips();
+}
+function renderChips(){
+  $('chip-row').innerHTML=players.map((p,i)=>
+    '<div class="chip '+(i===0?'lead':'')+'">'+
+    (i===0?'⭐ ':'')+p+
+    '<button class="chip-x" data-idx="'+i+'" aria-label="Remove '+p+'">×</button></div>').join('');
+  $('chip-row').querySelectorAll('.chip-x').forEach(btn=>{
+    btn.addEventListener('click',function(){removePlayer(parseInt(this.dataset.idx));});
+  });
+}
+
+// ── Game start ──
+function goStart(){
+  if(players.length<2){$('perr').classList.add('on');return;}
+  round=1;smIdx=0;usedSongs=new Set();
+  players.forEach(p=>scores[p]=0);
+  passTo(players[0],'You are the Starmaster this round.','setup');
+}
+function passTo(name,note,next){
+  $('pass-name').textContent=name;
+  $('pass-note').textContent=note;
+  nextScr=next;show('pass');
+}
+function doPass(){
+  show(nextScr);
+  if(nextScr==='setup')loadSetup();
+  else if(nextScr==='guess')loadGuess();
+  else if(nextScr==='reveal')loadReveal();
+}
+
+// ── Setup ──
+function loadSetup(){
+  $('setup-name').textContent=players[smIdx];
+  ['box-loading','box-autofill'].forEach(id=>$(id).style.display='none');
+  $('setup-btn').disabled=true;
+  phrase=null;choices=[];
+  autoFill();
+}
+function pickSong(){
+  let pool=[];
+  if(selectedGenre==='All') Object.values(SONGLIB).forEach(a=>pool.push(...a));
+  else pool=SONGLIB[selectedGenre]||[];
+  if(!pool.length) Object.values(SONGLIB).forEach(a=>pool.push(...a));
+  const avail=pool.filter(s=>!usedSongs.has(s.song));
+  const final=avail.length>0?avail:pool;
+  return final[Math.floor(Math.random()*final.length)];
+}
+function autoFill(){
+  $('box-loading').style.display='block';
+  $('spin-msg').textContent='Picking a song...';
+  // Small timeout so spinner renders before JS runs
+  setTimeout(()=>{
+    const pick=pickSong();
+    usedSongs.add(pick.song);
+    const correct=pick.song;
+    choices=shuffle([correct,...pick.fakes.slice(0,2)]);
+    phrase={phrase:pick.phrase,song:pick.song,artist:pick.artist};
+    $('af-song').textContent=pick.song;
+    $('af-artist').textContent=pick.artist;
+    $('af-phrase').textContent='\u201c'+pick.phrase+'\u201d';
+    $('af-choices').innerHTML=choices.map((c,i)=>'<span style="display:block">'+String.fromCharCode(65+i)+'. '+c+'</span>').join('');
+    $('box-loading').style.display='none';
+    $('box-autofill').style.display='block';
+    $('setup-btn').disabled=false;
+  },300);
+}
+function reroll(){
+  $('box-autofill').style.display='none';
+  $('setup-btn').disabled=true;
+  phrase=null;choices=[];
+  autoFill();
+}
+function submitSetup(){
+  guessOrder=players.filter((_,i)=>i!==smIdx);
+  currentGuesserIdx=0;playerAnswers={};
+  if(guessOrder.length===0){
+    passTo(players[smIdx],'Your turn to reveal the answer.','reveal');
+    return;
+  }
+  passTo(guessOrder[0],'It\'s your turn to guess! Cover the screen while passing.','guess');
+}
+
+// ── Guess screen ──
+function loadGuess(){
+  const player=guessOrder[currentGuesserIdx];
+  $('g-rnd-n').textContent=round;
+  $('g-player-name').textContent=player;
+  $('g-phrase').textContent='\u201c'+phrase.phrase+'\u201d';
+  const badge=$('g-diff-badge');
+  badge.textContent=DIFF[selectedDiff].label;
+  badge.className='diff-badge '+selectedDiff;
+  $('g-picked').style.display='none';
+  // Render choices with event listeners
+  const letters=['A','B','C'];
+  $('g-choices').innerHTML=choices.map((c,i)=>
+    '<button class="choice-btn" data-answer="'+encodeURIComponent(c)+'" data-idx="'+i+'">'+
+    '<span class="choice-letter">'+letters[i]+'</span>'+
+    '<span class="choice-text">'+c+'</span>'+
+    '</button>').join('');
+  $('g-choices').querySelectorAll('.choice-btn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      pickAnswer(decodeURIComponent(this.dataset.answer),parseInt(this.dataset.idx));
+    });
+  });
+  startGuessTimer(player);
+}
+function pickAnswer(answer,idx){
+  if($('g-picked').style.display!=='none') return;
+  stopTimer();
+  const player=guessOrder[currentGuesserIdx];
+  playerAnswers[player]=answer;
+  $('g-choices').querySelectorAll('.choice-btn').forEach((b,i)=>{
+    b.disabled=true;
+    if(i===idx) b.classList.add('selected');
+  });
+  $('g-picked').style.display='block';
+  const isLast=currentGuesserIdx>=guessOrder.length-1;
+  $('g-next-btn').textContent=isLast?'Pass back to Starmaster →':'Pass to next player →';
+}
+function nextGuesser(){
+  currentGuesserIdx++;
+  if(currentGuesserIdx>=guessOrder.length){
+    passTo(players[smIdx],'Everyone has guessed! Your turn to reveal the answer.','reveal');
+  } else {
+    const next=guessOrder[currentGuesserIdx];
+    passTo(next,'Cover the screen — it\'s '+next+'\'s turn to guess.','guess');
+  }
+}
+
+// ── Timer ──
+const TCIRC=213.6;
+function startGuessTimer(player){
+  clearInterval(timerInterval);
+  const d=DIFF[selectedDiff];
+  timerLeft=d.secs;
+  const ring=$('g-timer-ring'),num=$('g-timer-num'),wrap=$('g-timer-wrap');
+  wrap.classList.remove('timer-pulse');
+  ring.style.strokeDashoffset='0';
+  ring.style.stroke='var(--teal)';
+  num.style.color='var(--slate)';
+  num.textContent=timerLeft;
+  timerInterval=setInterval(()=>{
+    timerLeft--;
+    ring.style.strokeDashoffset=TCIRC*(( d.secs-timerLeft)/d.secs);
+    num.textContent=timerLeft;
+    const warnAt=selectedDiff==='hard'?5:selectedDiff==='medium'?8:10;
+    if(timerLeft<=warnAt){
+      ring.style.stroke='var(--rose)';num.style.color='var(--rose)';
+      wrap.classList.add('timer-pulse');
+    }
+    if(timerLeft<=0){
+      clearInterval(timerInterval);num.textContent='0';
+      $('timeup-msg').textContent='Time\'s up, '+player+'! Pick an answer now.';
+      $('timeup').style.display='flex';
+    }
+  },1000);
+}
+function stopTimer(){clearInterval(timerInterval);}
+function dismissTimeup(){
+  $('timeup').style.display='none';
+  const player=guessOrder[currentGuesserIdx];
+  if(!playerAnswers[player]){
+    playerAnswers[player]='__none__';
+    $('g-choices').querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
+    $('g-picked').style.display='block';
+    const isLast=currentGuesserIdx>=guessOrder.length-1;
+    $('g-next-btn').textContent=isLast?'Pass back to Starmaster →':'Pass to next player →';
+  }
+}
+
+// ── Reveal ──
+function loadReveal(){
+  $('rev-song').textContent=phrase.song;
+  $('rev-artist').textContent=phrase.artist;
+  $('rev-phrase').textContent=phrase.phrase;
+  const others=players.filter((_,i)=>i!==smIdx);
+  $('rev-answers').innerHTML=others.length===0?'<p class="muted">No other players.</p>':
+    others.map(p=>{
+      const ans=playerAnswers[p]||'—';
+      const correct=ans===phrase.song;
+      const display=ans==='__none__'?'No answer':ans;
+      return '<div class="result-row">'+
+        '<span class="result-name">'+p+'</span>'+
+        '<span class="result-answer '+(correct?'correct':'wrong')+'">'+(correct?'✓ ':'')+display+'</span>'+
+        '</div>';
+    }).join('');
+  show('reveal');
+}
+
+// ── Score ──
+function goScore(){
+  const pts=DIFF[selectedDiff].pts;
+  players.filter((_,i)=>i!==smIdx).forEach(p=>{
+    if(playerAnswers[p]===phrase.song) scores[p]+=pts;
+  });
+  loadScore();
+}
+function loadScore(){
+  const pts=DIFF[selectedDiff].pts;
+  const others=players.filter((_,i)=>i!==smIdx);
+  $('round-results').innerHTML=others.length===0?'<p class="muted">No other players.</p>':
+    others.map(p=>{
+      const correct=playerAnswers[p]===phrase.song;
+      return '<div class="result-row">'+
+        '<span class="result-name">'+p+'</span>'+
+        '<span class="result-answer '+(correct?'correct':'wrong')+'">'+(correct?'+'+pts+' pts ✓':'✗ No points')+'</span>'+
+        '<span class="result-pts">'+scores[p]+'</span></div>';
+    }).join('');
+  renderBoard('scoreboard');
+  show('score');
+}
+function renderBoard(id){
+  const sorted=[...players].sort((a,b)=>scores[b]-scores[a]);
+  $(id).innerHTML=sorted.map((p,i)=>
+    '<div class="score-row '+(i===0?'score-first':'')+'">'+
+    '<span style="font-size:14px;color:var(--text3);width:24px">'+(i===0?'⭐':i+1)+'</span>'+
+    '<span style="flex:1;font-size:15px;padding:0 10px">'+p+'</span>'+
+    '<span class="score-pts">'+scores[p]+'</span></div>').join('');
+}
+function nextRound(){
+  round++;smIdx=(smIdx+1)%players.length;
+  phrase=null;choices=[];playerAnswers={};
+  passTo(players[smIdx],players[smIdx]+' is the new Starmaster!','setup');
+}
+function endGame(){
+  stopTimer();
+  const sorted=[...players].sort((a,b)=>scores[b]-scores[a]);
+  $('end-winner').textContent=sorted[0];
+  $('end-pts').textContent=scores[sorted[0]];
+  renderBoard('end-board');show('end');
+}
+function resetGame(){
+  stopTimer();
+  players=[];scores={};smIdx=0;round=1;phrase=null;choices=[];playerAnswers={};usedSongs=new Set();
+  renderChips();show('home');
+}
+</script>
+</body>
+</html>
