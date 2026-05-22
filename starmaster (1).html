@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#0f1117"/>
+<title>Starmaster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --teal:#3bbfa8;--teal-mid:#4fd4bc;--teal-light:#7ee8d4;--teal-pale:rgba(59,191,168,0.15);
+  --slate:#a8bcc8;--slate-pale:rgba(168,188,200,0.15);
+  --rose:#e07a84;--rose-light:#f0aab2;--rose-pale:rgba(224,122,132,0.15);
+  --amber:#d4943a;--amber-pale:rgba(212,148,58,0.15);
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;
+  --text:#eef2f5;--text2:#8a9bb0;--text3:#4a5a6a;
+  --border:rgba(255,255,255,0.08);
+  --r:14px;--ff:'Syne',sans-serif;--fb:'DM Sans',sans-serif;
+  --genre-bg:transparent;
+  --ambience-color:59,191,168;
+}
+html,body{height:100%;overflow-x:hidden;}
+body{
+  font-family:var(--fb);color:var(--text);
+  background:var(--bg);
+  -webkit-text-size-adjust:100%;touch-action:manipulation;
+  transition:background 0.6s ease;
+}
+/* Ambient glow overlay */
+body::before{
+  content:'';
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:radial-gradient(ellipse at 50% 0%, rgba(var(--ambience-color),0.12) 0%, transparent 65%);
+  pointer-events:none;z-index:0;
+  transition:background 0.6s ease;
+}
+#app{max-width:520px;margin:0 auto;padding:1.25rem 1rem 6rem;position:relative;z-index:1;}
+.screen{display:none;}.screen.active{display:block;animation:fu .25s ease both;}
+@keyframes fu{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* Logo */
+.logo-wrap{text-align:center;padding:1.5rem 0 1.5rem;}
+.logo-name{font-family:var(--ff);font-size:32px;font-weight:800;letter-spacing:1px;color:var(--text);}
+.logo-tag{font-size:14px;color:var(--text3);margin-top:4px;}
+
+/* Cards */
+.card{
+  background:var(--surface);border:.5px solid var(--border);
+  border-radius:var(--r);padding:1.25rem;margin-bottom:14px;
+  backdrop-filter:blur(10px);
+}
+.card-label{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);font-weight:500;margin-bottom:12px;}
+
+/* Inputs */
+input,textarea,select{
+  width:100%;font-family:var(--fb);font-size:16px;
+  padding:12px 14px;border:.5px solid var(--border);
+  border-radius:10px;background:var(--surface2);color:var(--text);
+  outline:none;-webkit-appearance:none;appearance:none;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--teal);}
+textarea{resize:none;height:80px;line-height:1.5;}
+label{font-size:14px;color:var(--text2);display:block;margin-bottom:6px;}
+.gap{height:12px;}
+.row2{display:flex;gap:8px;}.row2>*{flex:1;}
+
+/* Buttons */
+button,.svc-btn,.pill,.choice-btn{
+  -webkit-appearance:none;appearance:none;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;
+}
+button{font-family:var(--fb);font-size:16px;font-weight:500;border-radius:10px;padding:12px 20px;transition:opacity .1s;border:none;background:transparent;color:var(--text);}
+button:active{opacity:.7;}
+.btn-main{
+  background:var(--teal);color:#0a1a18;border:none;
+  width:100%;padding:15px;font-size:17px;
+  border-radius:12px;font-family:var(--ff);font-weight:700;
+  display:block;margin-top:6px;min-height:52px;
+}
+.btn-main:active{opacity:.8;}
+.btn-main:disabled{opacity:.3;pointer-events:none;}
+.btn-sec{background:var(--surface2);color:var(--text);border:.5px solid var(--border);min-height:48px;padding:12px 18px;}
+.btn-sec:active{opacity:.7;}
+.btn-ghost{background:none;border:none;color:var(--text3);font-size:14px;padding:10px 6px;min-height:44px;}
+.btn-rose{background:transparent;color:var(--rose);border:.5px solid rgba(224,122,132,0.3);font-size:15px;padding:12px 18px;min-height:48px;border-radius:10px;}
+.btn-rose:active{background:var(--rose-pale);}
+
+/* Chips */
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;min-height:36px;margin-bottom:12px;}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:14px;padding:7px 13px;border-radius:20px;border:.5px solid var(--border);background:var(--surface2);min-height:36px;}
+.chip.lead{background:var(--teal-pale);border-color:rgba(59,191,168,0.3);color:var(--teal);}
+.chip-x{background:none;border:none;color:inherit;opacity:.5;font-size:18px;padding:0 0 0 2px;line-height:1;min-width:24px;min-height:24px;display:flex;align-items:center;justify-content:center;}
+.chip-x:active{opacity:1;}
+.err{font-size:14px;color:var(--rose);margin-top:8px;display:none;}.err.on{display:block;}
+
+/* Pass screen */
+.pass-wrap{text-align:center;padding:3rem 1rem 2.5rem;}
+.pass-ring{width:88px;height:88px;border-radius:50%;background:var(--teal-pale);border:.5px solid rgba(59,191,168,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:34px;}
+.pass-name{font-family:var(--ff);font-size:28px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.pass-note{font-size:15px;color:var(--text2);max-width:280px;margin:0 auto 2rem;line-height:1.55;}
+
+/* SM tag */
+.sm-tag{display:inline-block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;background:var(--rose-pale);color:var(--rose);border-radius:6px;padding:4px 10px;margin-bottom:10px;font-weight:500;}
+
+/* Phrase card */
+.phrase-card{background:var(--surface);border:.5px solid var(--border);border-radius:var(--r);padding:1.5rem 1.25rem;text-align:center;margin-bottom:14px;position:relative;overflow:hidden;}
+.phrase-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal),var(--rose));}
+.phrase-kicker{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;}
+.phrase-text{font-family:var(--ff);font-size:20px;font-weight:600;line-height:1.45;color:var(--text);}
+
+/* Choices */
+.choices{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.choice-btn{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:16px;text-align:left;color:var(--text);display:flex;align-items:center;gap:14px;font-family:var(--fb);width:100%;min-height:60px;transition:border-color .15s,background .15s;}
+.choice-btn:active{background:var(--teal-pale);border-color:rgba(59,191,168,0.4);}
+.choice-btn.selected{border-color:var(--teal);background:var(--teal-pale);color:var(--teal);}
+.choice-btn.selected .choice-letter{background:var(--teal);color:#0a1a18;border-color:var(--teal);}
+.choice-letter{width:34px;height:34px;border-radius:50%;background:var(--surface2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+.choice-text{flex:1;font-size:15px;line-height:1.3;font-weight:500;}
+
+/* Reveal */
+.reveal-box{background:var(--teal-pale);border:.5px solid rgba(59,191,168,0.25);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
+.reveal-row{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 16px;border-bottom:.5px solid rgba(59,191,168,0.1);gap:12px;}
+.reveal-row:last-child{border-bottom:none;}
+.reveal-key{font-size:12px;color:var(--teal);text-transform:uppercase;letter-spacing:1px;flex-shrink:0;padding-top:2px;}
+.reveal-val{font-size:15px;font-weight:500;color:var(--teal);text-align:right;}
+
+/* Results */
+.result-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:.5px solid var(--border);gap:8px;}
+.result-row:last-child{border-bottom:none;}
+.result-name{font-size:15px;flex:1;}
+.result-answer{font-size:13px;padding:4px 10px;border-radius:20px;text-align:center;}
+.result-answer.correct{background:var(--teal-pale);color:var(--teal);}
+.result-answer.wrong{background:var(--rose-pale);color:var(--rose);}
+.result-pts{font-family:var(--ff);font-size:18px;font-weight:700;color:var(--text);flex-shrink:0;}
+.score-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:.5px solid var(--border);}
+.score-row:last-child{border-bottom:none;}
+.score-pts{font-family:var(--ff);font-size:22px;font-weight:700;color:var(--text);}
+.score-first .score-pts{color:var(--teal);}
+
+/* Round bar */
+.round-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;}
+.round-pill{font-size:13px;background:var(--surface2);color:var(--text2);padding:5px 13px;border-radius:20px;}
+.muted{color:var(--text2);font-size:14px;}
+
+/* Service grid */
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+.svc-btn{display:flex;flex-direction:column;align-items:center;gap:7px;padding:16px 8px;background:var(--surface2);border:.5px solid var(--border);border-radius:12px;font-size:13px;color:var(--text2);font-family:var(--fb);font-weight:500;text-align:center;min-height:80px;}
+.svc-btn:active{border-color:rgba(59,191,168,0.4);background:var(--teal-pale);color:var(--teal);}
+.svc-btn.linked{background:var(--teal-pale);border-color:rgba(59,191,168,0.3);color:var(--teal);}
+.svc-icon{font-size:26px;}
+.linked-row{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.linked-badge{display:inline-flex;align-items:center;gap:5px;font-size:13px;background:var(--teal-pale);color:var(--teal);border:.5px solid rgba(59,191,168,0.3);border-radius:20px;padding:4px 12px;}
+
+/* Genre dropdown */
+.genre-select-wrap{position:relative;}
+.genre-select-wrap::after{content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--teal);font-size:16px;pointer-events:none;}
+#genre-select{
+  background:var(--surface2);color:var(--text);
+  border:.5px solid var(--border);
+  padding:13px 40px 13px 14px;
+  font-size:16px;border-radius:10px;
+  width:100%;cursor:pointer;
+  font-family:var(--fb);font-weight:500;
+  -webkit-appearance:none;appearance:none;
+}
+#genre-select:focus{border-color:var(--teal);}
+#genre-select option{background:#1a1d27;color:var(--text);}
+.genre-flag{font-size:13px;color:var(--text3);margin-top:8px;}
+
+/* Autofill box */
+.af-box{background:var(--teal-pale);border:.5px solid rgba(59,191,168,0.25);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
+.af-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:.5px solid rgba(59,191,168,0.15);}
+.af-title{font-size:14px;font-weight:500;color:var(--teal);}
+.af-row{display:flex;justify-content:space-between;align-items:flex-start;padding:11px 16px;border-bottom:.5px solid rgba(59,191,168,0.08);gap:12px;}
+.af-row:last-child{border-bottom:none;}
+.af-key{font-size:12px;color:var(--teal);text-transform:uppercase;letter-spacing:.8px;flex-shrink:0;padding-top:2px;}
+.af-val{font-size:15px;font-weight:500;color:var(--text);text-align:right;}
+.af-phrase{font-style:italic;font-weight:400;font-size:14px;}
+
+/* Spinner */
+.spinner-wrap{text-align:center;padding:1.5rem;}
+.spinner{width:32px;height:32px;border:3px solid var(--surface2);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin-txt{font-size:14px;color:var(--text3);}
+
+/* Diff pills */
+.pill-group{display:flex;flex-wrap:wrap;gap:8px;}
+.pill{padding:8px 16px;border-radius:20px;font-size:14px;font-weight:500;border:.5px solid var(--border);background:var(--surface2);color:var(--text2);min-height:38px;display:inline-flex;align-items:center;}
+.pill:active{opacity:.7;}
+.pill.active{color:#0a1a18;border-color:transparent;}
+.pill.diff-easy.active{background:#3bbfa8;}
+.pill.diff-medium.active{background:var(--amber);}
+.pill.diff-hard.active{background:var(--rose);}
+
+/* Timer */
+.timer-wrap{position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+.timer-ring-svg{transform:rotate(-90deg);}
+.timer-ring-bg{fill:none;stroke:var(--surface2);stroke-width:5;}
+.timer-ring-fg{fill:none;stroke:var(--teal);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .9s linear,stroke .5s;}
+.timer-num{position:absolute;font-family:var(--ff);font-size:26px;font-weight:700;color:var(--text);}
+.diff-badge{display:inline-block;font-size:12px;letter-spacing:1px;text-transform:uppercase;border-radius:6px;padding:3px 9px;font-weight:500;}
+.diff-badge.easy{background:rgba(59,191,168,0.15);color:var(--teal);}
+.diff-badge.medium{background:var(--amber-pale);color:var(--amber);}
+.diff-badge.hard{background:var(--rose-pale);color:var(--rose);}
+@keyframes pulse-ring{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+.timer-pulse{animation:pulse-ring .5s ease infinite;}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:999;padding:1rem;}
+.modal{background:var(--surface);border:.5px solid var(--border);border-radius:20px;padding:2rem 1.5rem;max-width:360px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.5);}
+.modal-ico{font-size:48px;margin-bottom:14px;}
+.modal-title{font-family:var(--ff);font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.modal-sub{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:1.5rem;}
+.modal-note{font-size:12px;color:var(--text3);margin-top:12px;line-height:1.55;}
+
+/* Timeup */
+.timeup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:900;padding:1rem;}
+.timeup-box{background:var(--surface);border:.5px solid var(--border);border-radius:20px;padding:2rem 1.5rem;max-width:320px;width:100%;text-align:center;}
+
+/* Picked badge */
+.picked-badge{background:var(--teal-pale);border:.5px solid rgba(59,191,168,0.25);border-radius:14px;padding:1.5rem;text-align:center;margin-bottom:14px;}
+.picked-emoji{font-size:36px;margin-bottom:10px;}
+.picked-txt{font-size:16px;color:var(--teal);font-weight:500;}
+.picked-sub{font-size:13px;color:var(--text3);margin-top:6px;}
+
+/* Trophy */
+.trophy-wrap{text-align:center;padding:2rem 1rem 1rem;}
+.trophy-ring{width:100px;height:100px;border-radius:50%;background:var(--teal-pale);border:.5px solid rgba(59,191,168,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.winner-name{font-family:var(--ff);font-size:32px;font-weight:800;color:var(--teal);}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HOME -->
+<div id="s-home" class="screen active">
+  <div class="logo-wrap">
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" style="display:block;margin:0 auto 14px">
+      <circle cx="40" cy="40" r="38" fill="rgba(59,191,168,0.12)"/>
+      <polygon points="40,12 47,30 67,30 52,42 58,61 40,50 22,61 28,42 13,30 33,30" fill="rgba(59,191,168,0.1)" transform="translate(2,3)"/>
+      <polygon points="40,12 47,30 67,30 52,42 58,61 40,50 22,61 28,42 13,30 33,30" fill="url(#sg1)"/>
+      <polygon points="40,12 47,30 67,30 52,42 58,61 40,50 22,61 28,42 13,30 33,30" fill="none" stroke="rgba(59,191,168,0.6)" stroke-width="1.5" stroke-linejoin="round"/>
+      <circle cx="31" cy="24" r="3" fill="#fff" opacity=".2"/>
+      <circle cx="31" cy="24" r="1.2" fill="#fff" opacity=".5"/>
+      <line x1="58" y1="14" x2="58" y2="20" stroke="rgba(59,191,168,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="55" y1="17" x2="61" y2="17" stroke="rgba(59,191,168,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="16" y1="52" x2="16" y2="57" stroke="rgba(224,122,132,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="13.5" y1="54.5" x2="18.5" y2="54.5" stroke="rgba(224,122,132,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+      <defs><linearGradient id="sg1" x1="40" y1="12" x2="40" y2="61" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#7ee8d4"/><stop offset="100%" stop-color="#3bbfa8"/></linearGradient></defs>
+    </svg>
+    <div class="logo-name">Starmaster</div>
+    <div class="logo-tag">The music guessing game</div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Link music service</div>
+    <div class="svc-grid">
+      <div class="svc-btn" id="svc-apple"><span class="svc-icon">🎵</span>Apple Music</div>
+      <div class="svc-btn" id="svc-youtube"><span class="svc-icon">▶️</span>YouTube Music</div>
+      <div class="svc-btn" id="svc-google"><span class="svc-icon">🎶</span>Google Play</div>
+    </div>
+    <div id="linked-row" style="display:none" class="linked-row">
+      <div class="linked-badge">✓ <span id="linked-label"></span> connected</div>
+      <button class="btn-ghost" id="unlink-btn">Disconnect</button>
+    </div>
+    <p class="muted" id="no-svc-note" style="font-size:13px;margin-top:8px">Link a service to auto-fill songs each round.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Genre filter</div>
+    <div class="genre-select-wrap">
+      <select id="genre-select">
+        <option value="All">🌍 All Genres</option>
+        <optgroup label="── Popular ──">
+          <option value="Pop">🎤 Pop</option>
+          <option value="R&B">🎷 R&amp;B</option>
+          <option value="Hip-Hop">🎧 Hip-Hop</option>
+          <option value="Rock">🎸 Rock</option>
+          <option value="Electronic">🎛️ Electronic</option>
+          <option value="Country">🤠 Country</option>
+          <option value="Latin">💃 Latin</option>
+        </optgroup>
+        <optgroup label="── International ──">
+          <option value="Afrobeats">🌍 Afrobeats</option>
+          <option value="Reggaeton">🇵🇷 Reggaeton</option>
+          <option value="K-Pop">🇰🇷 K-Pop</option>
+          <option value="Bollywood">🇮🇳 Bollywood</option>
+          <option value="Afropop">🌍 Afropop</option>
+          <option value="Dancehall">🇯🇲 Dancehall</option>
+          <option value="J-Pop">🇯🇵 J-Pop</option>
+          <option value="Cumbia">🇨🇴 Cumbia</option>
+          <option value="Soca">🇹🇹 Soca</option>
+          <option value="Amapiano">🇿🇦 Amapiano</option>
+          <option value="C-Pop">🇨🇳 C-Pop</option>
+          <option value="Highlife">🇬🇭 Highlife</option>
+          <option value="Bossa Nova">🇧🇷 Bossa Nova</option>
+          <option value="Flamenco">🇪🇸 Flamenco</option>
+          <option value="Arabic Pop">🌙 Arabic Pop</option>
+        </optgroup>
+      </select>
+    </div>
+    <p class="genre-flag" id="genre-flag"></p>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Difficulty</div>
+    <div class="pill-group" id="diff-pills">
+      <div class="pill diff-easy" data-diff="easy">🟢 Easy</div>
+      <div class="pill diff-medium active" data-diff="medium">🟡 Medium</div>
+      <div class="pill diff-hard" data-diff="hard">🔴 Hard</div>
+    </div>
+    <p class="muted" id="diff-note" style="font-size:13px;margin-top:10px"></p>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Players</div>
+    <div class="chip-row" id="chip-row"></div>
+    <div class="row2">
+      <input type="text" id="pname" placeholder="Enter a name..." maxlength="20" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false"/>
+      <button class="btn-sec" id="add-btn" style="flex:0 0 auto">Add</button>
+    </div>
+    <p class="err" id="perr">Add at least 2 players to start.</p>
+  </div>
+
+  <button class="btn-main" id="start-btn">Start game</button>
+</div>
+
+<!-- PASS -->
+<div id="s-pass" class="screen">
+  <div class="pass-wrap">
+    <div class="pass-ring">📱</div>
+    <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Pass to</div>
+    <div class="pass-name" id="pass-name"></div>
+    <div class="pass-note" id="pass-note"></div>
+    <button class="btn-main" id="pass-btn" style="max-width:260px;margin:0 auto;display:block;">I have the device</button>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div id="s-setup" class="screen">
+  <div style="margin-bottom:1.25rem">
+    <div class="sm-tag">★ Starmaster</div>
+    <div style="font-family:var(--ff);font-size:24px;font-weight:700;color:var(--text)" id="setup-name"></div>
+    <p class="muted" style="margin-top:6px;font-size:14px">Only you see this screen.</p>
+  </div>
+  <div id="box-loading" class="card" style="display:none">
+    <div class="spinner-wrap"><div class="spinner"></div><div class="spin-txt" id="spin-msg">Picking a song...</div></div>
+  </div>
+  <div id="box-autofill" class="af-box" style="display:none">
+    <div class="af-header">
+      <span class="af-title">✓ Song auto-filled</span>
+      <button class="btn-ghost" id="reroll-btn" style="font-size:13px;padding:6px 10px;color:var(--teal)">↺ Try another</button>
+    </div>
+    <div class="af-row"><span class="af-key">Song</span><span class="af-val" id="af-song"></span></div>
+    <div class="af-row"><span class="af-key">Artist</span><span class="af-val" id="af-artist"></span></div>
+    <div class="af-row"><span class="af-key">Phrase</span><span class="af-val af-phrase" id="af-phrase"></span></div>
+    <div class="af-row"><span class="af-key">Choices</span><span class="af-val" id="af-choices" style="font-size:13px;line-height:1.8"></span></div>
+  </div>
+  <button class="btn-main" id="setup-btn" disabled>Done — start guessing</button>
+</div>
+
+<!-- GUESS -->
+<div id="s-guess" class="screen">
+  <div class="round-bar">
+    <div class="round-pill">Round <span id="g-rnd-n">1</span></div>
+    <span id="g-diff-badge" class="diff-badge medium"></span>
+  </div>
+  <div style="text-align:center;margin-bottom:14px">
+    <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Your turn</div>
+    <div style="font-family:var(--ff);font-size:24px;font-weight:700;color:var(--text)" id="g-player-name"></div>
+  </div>
+  <div class="timer-wrap" id="g-timer-wrap">
+    <svg class="timer-ring-svg" width="80" height="80" viewBox="0 0 80 80">
+      <circle class="timer-ring-bg" cx="40" cy="40" r="34"/>
+      <circle class="timer-ring-fg" id="g-timer-ring" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="0"/>
+    </svg>
+    <span class="timer-num" id="g-timer-num">40</span>
+  </div>
+  <div class="phrase-card">
+    <div class="phrase-kicker">Guess the song</div>
+    <div class="phrase-text" id="g-phrase"></div>
+  </div>
+  <div class="choices" id="g-choices"></div>
+  <div id="g-picked" style="display:none">
+    <div class="picked-badge">
+      <div class="picked-emoji">✅</div>
+      <div class="picked-txt">Answer locked in!</div>
+      <div class="picked-sub">Pass the phone to the next player.</div>
+    </div>
+    <button class="btn-main" id="g-next-btn">Pass to next player →</button>
+  </div>
+</div>
+
+<!-- REVEAL -->
+<div id="s-reveal" class="screen">
+  <div style="margin-bottom:1.25rem">
+    <div class="sm-tag">★ Starmaster — Reveal</div>
+    <div style="font-family:var(--ff);font-size:22px;font-weight:700;color:var(--text)">Everyone has guessed!</div>
+    <p class="muted" style="margin-top:6px">Show the answer to the group.</p>
+  </div>
+  <div class="reveal-box" style="margin-bottom:14px">
+    <div class="reveal-row"><span class="reveal-key">Song</span><span class="reveal-val" id="rev-song"></span></div>
+    <div class="reveal-row"><span class="reveal-key">Artist</span><span class="reveal-val" id="rev-artist"></span></div>
+    <div class="reveal-row"><span class="reveal-key">Phrase</span><span class="reveal-val" id="rev-phrase" style="font-style:italic;font-size:13px;max-width:65%;text-align:right"></span></div>
+  </div>
+  <div class="card">
+    <div class="card-label">What everyone picked</div>
+    <div id="rev-answers"></div>
+  </div>
+  <button class="btn-main" id="score-btn">See scores →</button>
+</div>
+
+<!-- SCORE -->
+<div id="s-score" class="screen">
+  <div style="margin-bottom:1.25rem">
+    <div style="font-family:var(--ff);font-size:22px;font-weight:700;color:var(--text)">Scores</div>
+    <p class="muted">Points awarded automatically.</p>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-label">This round</div>
+    <div id="round-results"></div>
+  </div>
+  <div class="card">
+    <div class="card-label">Scoreboard</div>
+    <div id="scoreboard"></div>
+  </div>
+  <div class="row2" style="margin-top:6px;gap:10px">
+    <button class="btn-main" style="margin-top:0" id="next-round-btn">Next round</button>
+    <button class="btn-rose" id="end-game-btn">End game</button>
+  </div>
+</div>
+
+<!-- END -->
+<div id="s-end" class="screen">
+  <div class="trophy-wrap">
+    <div class="trophy-ring">
+      <svg width="56" height="56" viewBox="0 0 80 80" fill="none">
+        <polygon points="40,12 47,30 67,30 52,42 58,61 40,50 22,61 28,42 13,30 33,30" fill="rgba(59,191,168,0.1)" transform="translate(2,3)"/>
+        <polygon points="40,12 47,30 67,30 52,42 58,61 40,50 22,61 28,42 13,30 33,30" fill="url(#sg2)"/>
+        <polygon points="40,12 47,30 67,30 52,42 58,61 40,50 22,61 28,42 13,30 33,30" fill="none" stroke="rgba(59,191,168,0.5)" stroke-width="1.5" stroke-linejoin="round"/>
+        <circle cx="31" cy="24" r="2.5" fill="#fff" opacity=".3"/>
+        <defs><linearGradient id="sg2" x1="40" y1="12" x2="40" y2="61" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#7ee8d4"/><stop offset="100%" stop-color="#3bbfa8"/></linearGradient></defs>
+      </svg>
+    </div>
+    <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Winner</div>
+    <div class="winner-name" id="end-winner"></div>
+    <div style="font-size:15px;color:var(--text2);margin-top:6px"><span id="end-pts" style="font-weight:600"></span> points</div>
+  </div>
+  <div class="card"><div class="card-label">Final scores</div><div id="end-board"></div></div>
+  <button class="btn-main" style="margin-top:0" id="play-again-btn">↺ Play again</button>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal-bg" style="display:none">
+  <div class="modal">
+    <div class="modal-ico" id="m-ico"></div>
+    <div class="modal-title" id="m-title"></div>
+    <div class="modal-sub" id="m-sub"></div>
+    <button class="btn-main" id="m-connect-btn" style="margin-top:0">Connect</button>
+    <button class="btn-ghost" id="m-cancel-btn" style="width:100%;margin-top:8px">Cancel</button>
+    <div class="modal-note">In production this opens the service's OAuth login. Here it simulates the connection.</div>
+  </div>
+</div>
+
+<!-- TIMEUP -->
+<div id="timeup" class="timeup-overlay" style="display:none">
+  <div class="timeup-box">
+    <div style="font-size:48px;margin-bottom:12px">⏰</div>
+    <div style="font-family:var(--ff);font-size:24px;font-weight:700;color:var(--rose);margin-bottom:8px">Time's up!</div>
+    <div style="font-size:14px;color:var(--text2);margin-bottom:1.5rem" id="timeup-msg">Pick your answer!</div>
+    <button class="btn-main" id="timeup-btn" style="margin-top:0">OK</button>
+  </div>
+</div>
+
+<script>
+// ── Genre ambience colors [r,g,b] ──
+const GENRE_AMBIENCE={
+  'All':        [59,191,168],
+  'Pop':        [220,100,180],
+  'R&B':        [180,100,220],
+  'Hip-Hop':    [220,160,60],
+  'Rock':       [220,80,80],
+  'Electronic': [60,140,220],
+  'Country':    [180,140,80],
+  'Latin':      [220,120,60],
+  'Afrobeats':  [200,160,40],
+  'Reggaeton':  [60,180,120],
+  'K-Pop':      [200,80,160],
+  'Bollywood':  [220,100,60],
+  'Afropop':    [180,200,60],
+  'Dancehall':  [80,180,160],
+  'J-Pop':      [180,120,220],
+  'Cumbia':     [220,140,80],
+  'Soca':       [220,180,60],
+  'Amapiano':   [80,160,200],
+  'C-Pop':      [200,60,100],
+  'Highlife':   [180,160,60],
+  'Bossa Nova': [80,180,140],
+  'Flamenco':   [220,80,60],
+  'Arabic Pop': [180,140,60],
+};
+
+const GENRE_DESC={
+  'All':'🌍 All genres mixed together',
+  'Pop':'🎤 Global pop hits',
+  'R&B':'🎷 Rhythm & Blues',
+  'Hip-Hop':'🎧 Hip-Hop & Rap',
+  'Rock':'🎸 Rock & Alternative',
+  'Electronic':'🎛️ EDM & Electronic',
+  'Country':'🤠 Country & Americana',
+  'Latin':'💃 Latin & Spanish',
+  'Afrobeats':'🌍 Nigeria, Ghana & West Africa',
+  'Reggaeton':'🇵🇷 Puerto Rico, Colombia & Latin urban',
+  'K-Pop':'🇰🇷 South Korean pop',
+  'Bollywood':'🇮🇳 Indian film & pop music',
+  'Afropop':'🌍 Pan-African contemporary pop',
+  'Dancehall':'🇯🇲 Jamaican dancehall',
+  'J-Pop':'🇯🇵 Japanese pop',
+  'Cumbia':'🇨🇴 Colombian & Latin cumbia',
+  'Soca':'🇹🇹 Caribbean soca',
+  'Amapiano':'🇿🇦 South African amapiano',
+  'C-Pop':'🇨🇳 Chinese mandopop',
+  'Highlife':'🇬🇭 Ghanaian & Nigerian highlife',
+  'Bossa Nova':'🇧🇷 Brazilian bossa nova & MPB',
+  'Flamenco':'🇪🇸 Spanish flamenco & rumba',
+  'Arabic Pop':'🌙 Arabic & Middle Eastern pop',
+};
+
+// ── Song library ──
+const SONGLIB={
+  'Pop':[
+    {song:'Blinding Lights',artist:'The Weeknd',phrase:'I said, ooh, I\'m drowning in the night',fakes:['Shape of You','Levitating']},
+    {song:'As It Was',artist:'Harry Styles',phrase:'In this world, it\'s just us, you know it\'s not the same as it was',fakes:['Watermelon Sugar','Golden']},
+    {song:'Levitating',artist:'Dua Lipa',phrase:'I got you, moonlight, you\'re my starlight',fakes:['Don\'t Start Now','Physical']},
+    {song:'Shake It Off',artist:'Taylor Swift',phrase:'The players gonna play, play, play, play, play',fakes:['Bad Blood','22']},
+    {song:'Uptown Funk',artist:'Mark Ronson ft. Bruno Mars',phrase:'Don\'t believe me, just watch',fakes:['Happy','Can\'t Stop the Feeling']},
+    {song:'Roar',artist:'Katy Perry',phrase:'I used to bite my tongue and hold my breath',fakes:['Firework','Teenage Dream']},
+    {song:'Happy',artist:'Pharrell Williams',phrase:'Clap along if you feel like happiness is the truth',fakes:['Get Lucky','Blurred Lines']},
+    {song:'Shape of You',artist:'Ed Sheeran',phrase:'The club isn\'t the best place to find a lover',fakes:['Thinking Out Loud','Perfect']},
+  ],
+  'R&B':[
+    {song:'drivers license',artist:'Olivia Rodrigo',phrase:'I got my driver\'s license last week, just like we always talked about',fakes:['Good 4 U','Deja Vu']},
+    {song:'Good 4 U',artist:'Olivia Rodrigo',phrase:'Good for you, I guess you moved on really easily',fakes:['drivers license','brutal']},
+    {song:'Stay',artist:'The Kid LAROI ft. Justin Bieber',phrase:'I do the same thing I told you that I never would',fakes:['Without You','Thousand Miles']},
+    {song:'Hello',artist:'Adele',phrase:'Hello, it\'s me, I was wondering if after all these years you\'d like to meet',fakes:['Someone Like You','Rolling in the Deep']},
+    {song:'Someone Like You',artist:'Adele',phrase:'Never mind, I\'ll find someone like you',fakes:['Hello','Set Fire to the Rain']},
+    {song:'Peaches',artist:'Justin Bieber ft. Daniel Caesar',phrase:'I got my peaches out in Georgia',fakes:['Sorry','Love Yourself']},
+  ],
+  'Hip-Hop':[
+    {song:'God\'s Plan',artist:'Drake',phrase:'She said, do you love me? I tell her only partly',fakes:['Hotline Bling','In My Feelings']},
+    {song:'HUMBLE.',artist:'Kendrick Lamar',phrase:'Sit down, be humble',fakes:['DNA.','LOYALTY.']},
+    {song:'Sorry',artist:'Justin Bieber',phrase:'Is it too late now to say sorry?',fakes:['Love Yourself','What Do You Mean?']},
+    {song:'Sicko Mode',artist:'Travis Scott',phrase:'Sun is down, freezing cold, that\'s how I already know',fakes:['Antidote','Goosebumps']},
+    {song:'One Dance',artist:'Drake ft. Wizkid',phrase:'Baby, I like your style',fakes:['Controlla','Too Good']},
+  ],
+  'Rock':[
+    {song:'Counting Stars',artist:'OneRepublic',phrase:'Lately I\'ve been, I\'ve been losing sleep',fakes:['Apologize','Stop and Stare']},
+    {song:'Radioactive',artist:'Imagine Dragons',phrase:'I\'m waking up, I feel it in my bones',fakes:['Demons','Believer']},
+    {song:'Believer',artist:'Imagine Dragons',phrase:'First things first, I\'ma say all the words inside my head',fakes:['Thunder','Whatever It Takes']},
+    {song:'Riptide',artist:'Vance Joy',phrase:'I was scared of dentists and the dark',fakes:['Georgia','Fire and the Flood']},
+  ],
+  'Electronic':[
+    {song:'Wake Me Up',artist:'Avicii',phrase:'Feeling my way through the darkness, guided by a beating heart',fakes:['Levels','Hey Brother']},
+    {song:'Titanium',artist:'David Guetta ft. Sia',phrase:'I am titanium, you shoot me down but I won\'t fall',fakes:['Without You','Dangerous']},
+    {song:'Animals',artist:'Martin Garrix',phrase:'Baby, don\'t you fear, don\'t you fear this',fakes:['Tremor','Proxy']},
+    {song:'Clarity',artist:'Zedd ft. Foxes',phrase:'If our love is tragedy, why are you my remedy?',fakes:['Stay the Night','Beautiful Now']},
+  ],
+  'Country':[
+    {song:'Jolene',artist:'Dolly Parton',phrase:'Jolene, Jolene, Jolene, Jolene, I\'m begging of you please don\'t take my man',fakes:['I Will Always Love You','9 to 5']},
+    {song:'Before He Cheats',artist:'Carrie Underwood',phrase:'Right now he\'s probably slow dancing with a bleach-blonde tramp',fakes:['Jesus, Take the Wheel','Blown Away']},
+    {song:'Body Like a Back Road',artist:'Sam Hunt',phrase:'Body like a back road, driving with my eyes closed',fakes:['House Party','Break Up in a Small Town']},
+  ],
+  'Latin':[
+    {song:'Despacito',artist:'Luis Fonsi ft. Daddy Yankee',phrase:'Despacito, quiero respirar tu cuello despacito',fakes:['Bailando','El Perdón']},
+    {song:'Hips Don\'t Lie',artist:'Shakira ft. Wyclef Jean',phrase:'I never really knew that she could dance like this',fakes:['Waka Waka','La Tortura']},
+    {song:'Mi Gente',artist:'J Balvin ft. Willy William',phrase:'Toda mi gente, se mueve',fakes:['Ginza','Safari']},
+    {song:'Con Calma',artist:'Daddy Yankee ft. Snow',phrase:'Ahora me la tienes que pagar',fakes:['Gasolina','Dura']},
+  ],
+  'Afrobeats':[
+    {song:'Love Nwantiti',artist:'CKay',phrase:'I am so obsessed, I want to chop your nkwobi',fakes:['Joro','Essence']},
+    {song:'Essence',artist:'Wizkid ft. Tems',phrase:'You don\'t need no other body, nobody',fakes:['Ojuelegba','Come Closer']},
+    {song:'Ke Star',artist:'Focalistic ft. Davido',phrase:'Ke star, ke star, straight from the ghetto we are',fakes:['Fall','If']},
+    {song:'Electricity',artist:'Burna Boy',phrase:'Your love is giving me electricity',fakes:['Ye','Last Last']},
+    {song:'Last Last',artist:'Burna Boy',phrase:'Hennessy and Coké, nothing goes, on a low',fakes:['Outside','Way Too Big']},
+  ],
+  'Reggaeton':[
+    {song:'Gasolina',artist:'Daddy Yankee',phrase:'A ella le gusta la gasolina',fakes:['Con Calma','Dura']},
+    {song:'Taki Taki',artist:'DJ Snake ft. Selena Gomez',phrase:'All night, all eyes on me',fakes:['Lean On','Middle']},
+    {song:'MIA',artist:'Bad Bunny ft. Drake',phrase:'Tu eres mia, mia, mia',fakes:['I Like It','Mala Mia']},
+    {song:'Hawái',artist:'Maluma',phrase:'Resulta que te está yendo de maravilla',fakes:['Felices los 4','Borró Cassette']},
+    {song:'Pepas',artist:'Farruko',phrase:'En la disco, yo me llevo las pepas',fakes:['Callaita','Krippy Kush']},
+  ],
+  'K-Pop':[
+    {song:'Dynamite',artist:'BTS',phrase:'Cause I, I, I\'m in the stars tonight',fakes:['Butter','Permission to Dance']},
+    {song:'Butter',artist:'BTS',phrase:'Smooth like butter, like a criminal undercover',fakes:['Dynamite','Life Goes On']},
+    {song:'How You Like That',artist:'BLACKPINK',phrase:'Look at you, now look at me',fakes:['DDU-DU DDU-DU','Kill This Love']},
+    {song:'Eleven',artist:'IVE',phrase:'You make me feel like I am eleven',fakes:['LOVE DIVE','After LIKE']},
+    {song:'Hype Boy',artist:'NewJeans',phrase:'I\'m hyped up, hype boy',fakes:['Attention','OMG']},
+  ],
+  'Bollywood':[
+    {song:'Chaiyya Chaiyya',artist:'Sukhwinder Singh',phrase:'Chaiyya chaiyya chaiyya chaiyya',fakes:['Jai Ho','Desi Girl']},
+    {song:'Desi Girl',artist:'Abhijeet & Dominique Cerejo',phrase:'Desi girl, desi girl, everyone wants to know her',fakes:['Chaiyya Chaiyya','Jai Ho']},
+    {song:'Kar Gayi Chull',artist:'Badshah & Fazilpuria',phrase:'Chunar chunar chunar, main teri chunar udd gayi',fakes:['Abhi Toh Party Shuru Hui Hai','Balam Pichkari']},
+    {song:'Balam Pichkari',artist:'Shalmali Kholgade & Vishal Dadlani',phrase:'Balam pichkari jo tune mujhe maari',fakes:['Radha','Nagada Sang Dhol']},
+  ],
+  'Afropop':[
+    {song:'Sweet Sensation',artist:'Femi Kuti',phrase:'Sweet sensation, all over the nation',fakes:['Truth Don Die','Beng Beng Beng']},
+    {song:'Johnny',artist:'Yemi Alade',phrase:'Johnny, Johnny, answer me, answer me',fakes:['Oh My Gosh','Tumbum']},
+    {song:'Fallen',artist:'Lauren Daigle',phrase:'I am yours and you are mine',fakes:['You Say','Trust in You']},
+    {song:'Jerusalem',artist:'Burna Boy',phrase:'Jerusalem, I dey go, everything for me I go get am',fakes:['Gbona','Anybody']},
+  ],
+  'Dancehall':[
+    {song:'Temperature',artist:'Sean Paul',phrase:'When the temperature rises, gonna fly to the top',fakes:['Got 2 Luv U','Other Side of Love']},
+    {song:'Informer',artist:'Snow',phrase:'Informer, you no say daddy me Snow me I\'ll go blame',fakes:['Temperature','Ting Ting']},
+    {song:'Boom Boom Boom',artist:'Mr. Vegas',phrase:'Boom boom boom, let me hear you say way-oh',fakes:['Heads High','Nah Lose Mi Head']},
+    {song:'Dutty Wine',artist:'Tony Matterhorn',phrase:'Dutty wine, all the girls in the club do the dutty wine',fakes:['Log On','Wuk']},
+  ],
+  'J-Pop':[
+    {song:'Lemon',artist:'Kenshi Yonezu',phrase:'Ima demo anata wa watashi no hikari',fakes:['Paprika','Uchiage Hanabi']},
+    {song:'Pretender',artist:'Official HIGE DANdism',phrase:'Aitai yo, koe wo kikitai yo',fakes:['Subtitle','Mixed Nuts']},
+    {song:'Gurenge',artist:'LiSA',phrase:'Ima koso mezame yo, kurete mo saku hana no you ni',fakes:['Crossing Field','Oath Sign']},
+    {song:'Monster',artist:'YOASOBI',phrase:'Kantan ni koete shimae yo, sore ga kimi no taido desho',fakes:['Idol','Into the Night']},
+  ],
+  'Cumbia':[
+    {song:'La Bicicleta',artist:'Carlos Vives & Shakira',phrase:'Tú y yo haciendo una bicicleta',fakes:['La Gota Fría','Fruta Fresca']},
+    {song:'Cumbia de los Muertos',artist:'Carlos Vives',phrase:'Esta cumbia tiene algo especial',fakes:['La Bicicleta','El Rock de mi Pueblo']},
+    {song:'Quimbara',artist:'Celia Cruz',phrase:'Quimbara cumba quimbamba',fakes:['La Vida es un Carnaval','Cúcala']},
+  ],
+  'Soca':[
+    {song:'Road March',artist:'Machel Montano',phrase:'Rocking to the soca music',fakes:['Jab Molassie','Too Young to Soca']},
+    {song:'Palance',artist:'JW & Blaze',phrase:'Palance, palance, watch the man palance',fakes:['Phenomenal','Good So']},
+    {song:'Famalay',artist:'Machel Montano ft. Skinny Fabulous',phrase:'Jump and wave, all my famalay',fakes:['Like a Boss','Big Bad Soca']},
+  ],
+  'Amapiano':[
+    {song:'Labantwana Ama Uber',artist:'Samthing Soweto',phrase:'Labantwana ama Uber bayeza',fakes:['Akulaleki','Ngiwele']},
+    {song:'Love You Tonight',artist:'Uncle Waffles & Tony Duardo',phrase:'I want to love you tonight',fakes:['Tanzania','Nkulunkulu']},
+    {song:'Phoyisa',artist:'Kabza De Small & DJ Maphorisa',phrase:'Phoyisa, phoyisa, mama',fakes:['Sponono','Abalele']},
+  ],
+  'C-Pop':[
+    {song:'Easy On Me',artist:'Jay Chou',phrase:'Wo bu pei, shi ni tai mei li',fakes:['Qing Hua Ci','Dao Xiang']},
+    {song:'Qing Hua Ci',artist:'Jay Chou',phrase:'Su zhan mo tiao cai neng xie wei lei',fakes:['Dao Xiang','Nian Nian']},
+    {song:'Hua Nuan Hua Kai',artist:'Faye Wong',phrase:'Wo yuan yi zai ni zuo you',fakes:['Chuan Qi','Hong Dou']},
+  ],
+  'Highlife':[
+    {song:'Diana',artist:'Ebo Taylor',phrase:'Diana, I love you so',fakes:['Love and Death','Abavaga']},
+    {song:'Yaa Amponsah',artist:'Koo Nimo',phrase:'Yaa Amponsah, wo ho ye fe paa',fakes:['Sika Ye Mogya','Obra']},
+    {song:'Sweet Mother',artist:'Prince Nico Mbarga',phrase:'Sweet mother, I no go forget you',fakes:['Aki Special','Christiana']},
+  ],
+  'Bossa Nova':[
+    {song:'The Girl from Ipanema',artist:'Stan Getz & João Gilberto',phrase:'Tall and tan and young and lovely, the girl from Ipanema goes walking',fakes:['Corcovado','Desafinado']},
+    {song:'Águas de Março',artist:'Elis Regina & Tom Jobim',phrase:'É pau, é pedra, é o fim do caminho',fakes:['Wave','Garota de Ipanema']},
+    {song:'Desafinado',artist:'João Gilberto',phrase:'Se você disser que eu desafino amor',fakes:['Corcovado','Chega de Saudade']},
+  ],
+  'Flamenco':[
+    {song:'Entre Dos Aguas',artist:'Paco de Lucía',phrase:'El sonido de la guitarra me lleva lejos',fakes:['Almoraima','Rio Ancho']},
+    {song:'La Noche',artist:'Camarón de la Isla',phrase:'Esta noche yo me muero de pena',fakes:['Soy Gitano','Volando Voy']},
+    {song:'Bamboléo',artist:'Gipsy Kings',phrase:'Bamboléo, bamboléa, ma vie fout le camp',fakes:['Volare','Djobi Djoba']},
+  ],
+  'Arabic Pop':[
+    {song:'Habibi Ya Nour El Ain',artist:'Amr Diab',phrase:'Habibi ya nour el ain, yaساكن خيالي',fakes:['Tamally Maak','Nour El Ain']},
+    {song:'Enta Eih',artist:'Amr Diab',phrase:'Enta eih, enta eih, ah ya habibi',fakes:['Wayah','Bahebak Aktar']},
+    {song:'Ya Tabtab',artist:'Nancy Ajram',phrase:'Ya tabtab wa dalla, ya tabtab',fakes:['Ah W Noss','Lawn Ayonak']},
+    {song:'Waving Flag',artist:'K\'naan',phrase:'When I get older, I will be stronger',fakes:['Wavin Flag','Bulletproof']},
+  ],
+};
+
+const SVC={
+  apple:{name:'Apple Music',icon:'🎵'},
+  youtube:{name:'YouTube Music',icon:'▶️'},
+  google:{name:'Google Play',icon:'🎶'},
+};
+const DIFF={
+  easy:{label:'Easy',secs:40,pts:1,desc:'40 seconds · 1 pt per correct guess'},
+  medium:{label:'Medium',secs:30,pts:2,desc:'30 seconds · 2 pts per correct guess'},
+  hard:{label:'Hard',secs:15,pts:3,desc:'15 seconds · 3 pts per correct guess'},
+};
+
+// State
+let players=[],scores={},smIdx=0,round=1,phrase=null,nextScr=null;
+let linkedSvc=null,pendingSvc=null,usedSongs=new Set();
+let selectedGenre='All',selectedDiff='medium';
+let timerInterval=null,timerLeft=0;
+let guessOrder=[],currentGuesserIdx=0,playerAnswers={},choices=[];
+
+function setAmbience(genre){
+  const c=GENRE_AMBIENCE[genre]||GENRE_AMBIENCE['All'];
+  document.documentElement.style.setProperty('--ambience-color',c.join(','));
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function $(id){return document.getElementById(id);}
+
+// Genre select
+$('genre-select').addEventListener('change',function(){
+  selectedGenre=this.value;
+  setAmbience(selectedGenre);
+  $('genre-flag').textContent=GENRE_DESC[selectedGenre]||'';
+});
+setAmbience('All');
+
+// Diff pills
+document.querySelectorAll('#diff-pills .pill').forEach(pill=>{
+  pill.addEventListener('click',function(){
+    document.querySelectorAll('#diff-pills .pill').forEach(p=>p.classList.remove('active'));
+    this.classList.add('active');
+    selectedDiff=this.dataset.diff;
+    $('diff-note').textContent=DIFF[selectedDiff].desc;
+  });
+});
+$('diff-note').textContent=DIFF['medium'].desc;
+
+// Service btns
+['apple','youtube','google'].forEach(key=>{
+  $('svc-'+key).addEventListener('click',()=>openModal(key));
+});
+$('unlink-btn').addEventListener('click',unlinkService);
+$('m-connect-btn').addEventListener('click',confirmConnect);
+$('m-cancel-btn').addEventListener('click',closeModal);
+$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal();});
+
+// Players
+$('add-btn').addEventListener('click',addPlayer);
+$('pname').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addPlayer();}});
+
+// Game flow
+$('start-btn').addEventListener('click',goStart);
+$('pass-btn').addEventListener('click',doPass);
+$('setup-btn').addEventListener('click',submitSetup);
+$('reroll-btn').addEventListener('click',reroll);
+$('g-next-btn').addEventListener('click',nextGuesser);
+$('score-btn').addEventListener('click',goScore);
+$('next-round-btn').addEventListener('click',nextRound);
+$('end-game-btn').addEventListener('click',endGame);
+$('play-again-btn').addEventListener('click',resetGame);
+$('timeup-btn').addEventListener('click',dismissTimeup);
+
+// Modal
+function openModal(key){
+  pendingSvc=key;
+  $('m-ico').textContent=SVC[key].icon;
+  $('m-title').textContent='Connect '+SVC[key].name;
+  $('m-sub').textContent='Link your '+SVC[key].name+' account so songs are auto-filled each round.';
+  $('modal').style.display='flex';
+}
+function closeModal(){$('modal').style.display='none';pendingSvc=null;}
+function confirmConnect(){
+  linkedSvc=pendingSvc;
+  document.querySelectorAll('.svc-btn').forEach(b=>b.classList.remove('linked'));
+  $('svc-'+linkedSvc).classList.add('linked');
+  $('linked-label').textContent=SVC[linkedSvc].name;
+  $('linked-row').style.display='flex';
+  $('no-svc-note').style.display='none';
+  closeModal();
+}
+function unlinkService(){
+  $('svc-'+linkedSvc).classList.remove('linked');
+  linkedSvc=null;
+  $('linked-row').style.display='none';
+  $('no-svc-note').style.display='block';
+}
+
+// Players
+function addPlayer(){
+  const inp=$('pname'),n=inp.value.trim();
+  if(!n||players.includes(n)){inp.value='';return;}
+  players.push(n);scores[n]=0;renderChips();inp.value='';inp.focus();
+  $('perr').classList.remove('on');
+}
+function removePlayer(i){const n=players[i];players.splice(i,1);delete scores[n];renderChips();}
+function renderChips(){
+  $('chip-row').innerHTML=players.map((p,i)=>
+    '<div class="chip '+(i===0?'lead':'')+'">'+
+    (i===0?'⭐ ':'')+p+
+    '<button class="chip-x" data-idx="'+i+'">×</button></div>').join('');
+  $('chip-row').querySelectorAll('.chip-x').forEach(btn=>{
+    btn.addEventListener('click',function(){removePlayer(parseInt(this.dataset.idx));});
+  });
+}
+
+// Game start
+function goStart(){
+  if(players.length<2){$('perr').classList.add('on');return;}
+  round=1;smIdx=0;usedSongs=new Set();
+  players.forEach(p=>scores[p]=0);
+  passTo(players[0],'You are the Starmaster this round.','setup');
+}
+function passTo(name,note,next){
+  $('pass-name').textContent=name;
+  $('pass-note').textContent=note;
+  nextScr=next;show('pass');
+}
+function doPass(){
+  show(nextScr);
+  if(nextScr==='setup')loadSetup();
+  else if(nextScr==='guess')loadGuess();
+  else if(nextScr==='reveal')loadReveal();
+}
+
+// Setup
+function loadSetup(){
+  $('setup-name').textContent=players[smIdx];
+  ['box-loading','box-autofill'].forEach(id=>$(id).style.display='none');
+  $('setup-btn').disabled=true;
+  phrase=null;choices=[];
+  autoFill();
+}
+function pickSong(){
+  let pool=[];
+  if(selectedGenre==='All') Object.values(SONGLIB).forEach(a=>pool.push(...a));
+  else pool=SONGLIB[selectedGenre]||[];
+  if(!pool.length) Object.values(SONGLIB).forEach(a=>pool.push(...a));
+  const avail=pool.filter(s=>!usedSongs.has(s.song));
+  const final=avail.length>0?avail:pool;
+  return final[Math.floor(Math.random()*final.length)];
+}
+function autoFill(){
+  $('box-loading').style.display='block';
+  $('spin-msg').textContent='Picking a song...';
+  setTimeout(()=>{
+    const pick=pickSong();
+    usedSongs.add(pick.song);
+    choices=shuffle([pick.song,...pick.fakes.slice(0,2)]);
+    phrase={phrase:pick.phrase,song:pick.song,artist:pick.artist};
+    $('af-song').textContent=pick.song;
+    $('af-artist').textContent=pick.artist;
+    $('af-phrase').textContent='\u201c'+pick.phrase+'\u201d';
+    $('af-choices').innerHTML=choices.map((c,i)=>'<span style="display:block">'+String.fromCharCode(65+i)+'. '+c+'</span>').join('');
+    $('box-loading').style.display='none';
+    $('box-autofill').style.display='block';
+    $('setup-btn').disabled=false;
+  },300);
+}
+function reroll(){
+  $('box-autofill').style.display='none';
+  $('setup-btn').disabled=true;
+  phrase=null;choices=[];
+  autoFill();
+}
+function submitSetup(){
+  guessOrder=players.filter((_,i)=>i!==smIdx);
+  currentGuesserIdx=0;playerAnswers={};
+  if(guessOrder.length===0){passTo(players[smIdx],'Your turn to reveal the answer.','reveal');return;}
+  passTo(guessOrder[0],'It\'s your turn to guess! Cover the screen while passing.','guess');
+}
+
+// Guess screen
+function loadGuess(){
+  const player=guessOrder[currentGuesserIdx];
+  $('g-rnd-n').textContent=round;
+  $('g-player-name').textContent=player;
+  $('g-phrase').textContent='\u201c'+phrase.phrase+'\u201d';
+  const badge=$('g-diff-badge');
+  badge.textContent=DIFF[selectedDiff].label;
+  badge.className='diff-badge '+selectedDiff;
+  $('g-picked').style.display='none';
+  const letters=['A','B','C'];
+  $('g-choices').innerHTML=choices.map((c,i)=>
+    '<button class="choice-btn" data-answer="'+encodeURIComponent(c)+'" data-idx="'+i+'">'+
+    '<span class="choice-letter">'+letters[i]+'</span>'+
+    '<span class="choice-text">'+c+'</span></button>').join('');
+  $('g-choices').querySelectorAll('.choice-btn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      pickAnswer(decodeURIComponent(this.dataset.answer),parseInt(this.dataset.idx));
+    });
+  });
+  startGuessTimer(player);
+}
+function pickAnswer(answer,idx){
+  if($('g-picked').style.display!=='none') return;
+  stopTimer();
+  const player=guessOrder[currentGuesserIdx];
+  playerAnswers[player]=answer;
+  $('g-choices').querySelectorAll('.choice-btn').forEach((b,i)=>{
+    b.disabled=true;
+    if(i===idx) b.classList.add('selected');
+  });
+  $('g-picked').style.display='block';
+  const isLast=currentGuesserIdx>=guessOrder.length-1;
+  $('g-next-btn').textContent=isLast?'Pass back to Starmaster →':'Pass to next player →';
+}
+function nextGuesser(){
+  currentGuesserIdx++;
+  if(currentGuesserIdx>=guessOrder.length){
+    passTo(players[smIdx],'Everyone has guessed! Your turn to reveal the answer.','reveal');
+  } else {
+    const next=guessOrder[currentGuesserIdx];
+    passTo(next,'Cover the screen — it\'s '+next+'\'s turn to guess.','guess');
+  }
+}
+
+// Timer
+const TCIRC=213.6;
+function startGuessTimer(player){
+  clearInterval(timerInterval);
+  const d=DIFF[selectedDiff];
+  timerLeft=d.secs;
+  const ring=$('g-timer-ring'),num=$('g-timer-num'),wrap=$('g-timer-wrap');
+  wrap.classList.remove('timer-pulse');
+  ring.style.strokeDashoffset='0';
+  ring.style.stroke='var(--teal)';
+  num.style.color='var(--text)';
+  num.textContent=timerLeft;
+  timerInterval=setInterval(()=>{
+    timerLeft--;
+    ring.style.strokeDashoffset=TCIRC*((d.secs-timerLeft)/d.secs);
+    num.textContent=timerLeft;
+    const warnAt=selectedDiff==='hard'?5:selectedDiff==='medium'?8:10;
+    if(timerLeft<=warnAt){ring.style.stroke='var(--rose)';num.style.color='var(--rose)';wrap.classList.add('timer-pulse');}
+    if(timerLeft<=0){
+      clearInterval(timerInterval);num.textContent='0';
+      $('timeup-msg').textContent='Time\'s up, '+player+'! Pick an answer now.';
+      $('timeup').style.display='flex';
+    }
+  },1000);
+}
+function stopTimer(){clearInterval(timerInterval);}
+function dismissTimeup(){
+  $('timeup').style.display='none';
+  const player=guessOrder[currentGuesserIdx];
+  if(!playerAnswers[player]){
+    playerAnswers[player]='__none__';
+    $('g-choices').querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
+    $('g-picked').style.display='block';
+    const isLast=currentGuesserIdx>=guessOrder.length-1;
+    $('g-next-btn').textContent=isLast?'Pass back to Starmaster →':'Pass to next player →';
+  }
+}
+
+// Reveal
+function loadReveal(){
+  $('rev-song').textContent=phrase.song;
+  $('rev-artist').textContent=phrase.artist;
+  $('rev-phrase').textContent=phrase.phrase;
+  const others=players.filter((_,i)=>i!==smIdx);
+  $('rev-answers').innerHTML=others.length===0?'<p class="muted">No other players.</p>':
+    others.map(p=>{
+      const ans=playerAnswers[p]||'—';
+      const correct=ans===phrase.song;
+      const display=ans==='__none__'?'No answer':ans;
+      return '<div class="result-row"><span class="result-name">'+p+'</span>'+
+        '<span class="result-answer '+(correct?'correct':'wrong')+'">'+(correct?'✓ ':'')+display+'</span></div>';
+    }).join('');
+  show('reveal');
+}
+
+// Score
+function goScore(){
+  const pts=DIFF[selectedDiff].pts;
+  players.filter((_,i)=>i!==smIdx).forEach(p=>{if(playerAnswers[p]===phrase.song) scores[p]+=pts;});
+  loadScore();
+}
+function loadScore(){
+  const pts=DIFF[selectedDiff].pts;
+  const others=players.filter((_,i)=>i!==smIdx);
+  $('round-results').innerHTML=others.length===0?'<p class="muted">No other players.</p>':
+    others.map(p=>{
+      const correct=playerAnswers[p]===phrase.song;
+      return '<div class="result-row"><span class="result-name">'+p+'</span>'+
+        '<span class="result-answer '+(correct?'correct':'wrong')+'">'+(correct?'+'+pts+' pts ✓':'✗ No points')+'</span>'+
+        '<span class="result-pts">'+scores[p]+'</span></div>';
+    }).join('');
+  renderBoard('scoreboard');
+  show('score');
+}
+function renderBoard(id){
+  const sorted=[...players].sort((a,b)=>scores[b]-scores[a]);
+  $(id).innerHTML=sorted.map((p,i)=>
+    '<div class="score-row '+(i===0?'score-first':'')+'">'+
+    '<span style="font-size:14px;color:var(--text3);width:24px">'+(i===0?'⭐':i+1)+'</span>'+
+    '<span style="flex:1;font-size:15px;padding:0 10px">'+p+'</span>'+
+    '<span class="score-pts">'+scores[p]+'</span></div>').join('');
+}
+function nextRound(){
+  round++;smIdx=(smIdx+1)%players.length;
+  phrase=null;choices=[];playerAnswers={};
+  passTo(players[smIdx],players[smIdx]+' is the new Starmaster!','setup');
+}
+function endGame(){
+  stopTimer();
+  const sorted=[...players].sort((a,b)=>scores[b]-scores[a]);
+  $('end-winner').textContent=sorted[0];
+  $('end-pts').textContent=scores[sorted[0]];
+  renderBoard('end-board');show('end');
+}
+function resetGame(){
+  stopTimer();
+  players=[];scores={};smIdx=0;round=1;phrase=null;choices=[];playerAnswers={};usedSongs=new Set();
+  renderChips();show('home');
+}
+
+}); // end DOMContentLoaded
+</script>
+</body>
+</html>
